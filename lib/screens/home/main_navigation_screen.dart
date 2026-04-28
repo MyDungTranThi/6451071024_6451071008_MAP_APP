@@ -1,49 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../controller/main_navigation_controller.dart';
-import '../mystore/mystore_screen.dart';
-import '../profile/profile_screen.dart';
-import '../wishlist/wishlist_screen.dart';
 import 'home_screen.dart';
+import '../profile/profile_screen.dart';
+import '../mystore/mystore_screen.dart';
+// TODO: WishlistScreen chưa được tạo, sẽ bổ sung ở giai đoạn sau
+// import '../wishlist/wishlist_screen.dart';
 
-class MainNavigationScreen extends GetView<MainNavigationController> {
+class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final tabs = [
-      const HomeScreen(),
-      const MyStoreScreen(),
-      const WishlistScreen(),
-      const ProfileScreen(),
-    ];
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+}
 
-    return Obx(
-      () => Scaffold(
-        body: IndexedStack(
-          index: controller.currentIndex.value,
-          children: tabs,
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: controller.currentIndex.value,
-          onDestinationSelected: controller.changeTab,
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
-            NavigationDestination(
-              icon: Icon(Icons.storefront_outlined),
-              label: 'My Store',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.favorite_border),
-              label: 'Wishlist',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              label: 'Profile',
-            ),
-          ],
-        ),
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  int currentIndex = 0;
+
+  final List<Widget> screens = [
+    HomeScreen(),
+    MystoreScreen(),
+    // TODO: Thay thế placeholder bằng WishlistScreen khi đã tạo
+    const Scaffold(body: Center(child: Text('Yêu thích - Đang phát triển'))),
+    const ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: screens[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.store),
+            label: 'Cửa hàng',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_border),
+            label: 'Yêu thích',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Hồ sơ'),
+        ],
       ),
     );
   }
