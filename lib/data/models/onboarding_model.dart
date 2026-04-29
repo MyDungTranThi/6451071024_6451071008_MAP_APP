@@ -1,0 +1,11 @@
+class OnboardingModel {
+  const OnboardingModel({
+    required this.title,
+    required this.description,
+    required this.iconName,
+  });
+
+  final String title;
+  final String description;
+  final String iconName;
+}

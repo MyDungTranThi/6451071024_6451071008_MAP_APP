@@ -10,9 +10,15 @@ applyTo: "**/*.dart"
 - **State Management:** GetX 100%. Use GetX for state management, routing, and dependency injection (Bindings).
 - **Separation of Concerns:** 
   - `screens/`: Contains only UI Widgets. No business logic (API calls, Firebase operations). UI only listens to state.
-  - `controller/`: Contains all business logic and state.
-  - `data/services/`: Handles getting/setting data (Firebase).
+  - `controller/`: Contains business logic/state for screen workflows, and **must call repositories only**.
+  - `data/repositories/`: Layer between controllers and services. Handles data orchestration, mapping/transform, fallback strategy.
+  - `data/services/`: Handles raw IO (Firebase/API/local storage) only. No UI/controller logic.
   - `data/models/`: Dart Object modeling (JSON serialization).
+
+### Repository Rule (mandatory)
+- `controller/` must **not** import or call classes in `data/services/` directly.
+- Dependency flow must be: `screens` → `controller` → `repository` → `service`.
+- Any new Firebase operation must be exposed through a repository before being used by a controller.
 
 ## 2. Navigation
 - **Rule:** Never use vanilla `Navigator.push`. 

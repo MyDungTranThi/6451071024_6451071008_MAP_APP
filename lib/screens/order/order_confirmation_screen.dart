@@ -1,0 +1,55 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../controller/checkout_controller.dart';
+import '../../routes/app_routes.dart';
+
+class OrderConfirmationScreen extends StatelessWidget {
+  const OrderConfirmationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final checkoutController = Get.find<CheckoutController>();
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Order placed'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Obx(
+            () => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, size: 72, color: Colors.green),
+                const SizedBox(height: 12),
+                const Text(
+                  'Thank you for your purchase!',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Order code: ${checkoutController.lastOrderCode.value}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Total: \$${checkoutController.lastOrderTotal.value.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 20),
+                FilledButton(
+                  onPressed: () => Get.offAllNamed(AppRoutes.mainNavigation),
+                  child: const Text('Back to Home'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
