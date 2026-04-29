@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 
 import '../../common/styles/app_colors.dart';
 import '../../common/widgets/primary_button.dart';
+import '../../controller/auth_controller.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../controller/product_detail_controller.dart';
+import '../../controller/wishlist_controller.dart';
 import '../../data/models/book_model.dart';
 import '../../routes/app_routes.dart';
 
@@ -14,6 +16,8 @@ class ProductDetailScreen extends GetView<ProductDetailController> {
   @override
   Widget build(BuildContext context) {
     final catalogController = Get.find<BookCatalogController>();
+    final authController = Get.find<AuthController>();
+    final wishlistController = Get.find<WishlistController>();
     final bookId = Get.arguments as String?;
     final BookModel? book = bookId == null
         ? null
@@ -36,6 +40,22 @@ class ProductDetailScreen extends GetView<ProductDetailController> {
             onPressed: () => Get.toNamed(AppRoutes.cart),
             icon: const Icon(Icons.shopping_cart_outlined),
           ),
+          Obx(() {
+            final inWishlist = wishlistController.isInWishlist(book.id);
+            return IconButton(
+              onPressed: () {
+                if (!authController.isLoggedIn) {
+                  Get.toNamed(AppRoutes.login);
+                  return;
+                }
+                wishlistController.toggle(book);
+              },
+              icon: Icon(
+                inWishlist ? Icons.favorite : Icons.favorite_border,
+                color: inWishlist ? Colors.red : null,
+              ),
+            );
+          }),
         ],
       ),
       body: ListView(

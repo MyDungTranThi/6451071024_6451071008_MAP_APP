@@ -5,6 +5,7 @@ import '../controller/cart_controller.dart';
 import '../controller/checkout_controller.dart';
 import '../controller/main_navigation_controller.dart';
 import '../controller/product_detail_controller.dart';
+import '../controller/wishlist_controller.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/order_repository.dart';
 import '../data/services/book_firestore_service.dart';
@@ -35,5 +36,6 @@ class ShoppingBinding extends Bindings {
     Get.put(CartController(), permanent: true);
     Get.put(ProductDetailController(), permanent: true);
     Get.put(CheckoutController(orderRepository), permanent: true);
+    Get.put(WishlistController(), permanent: true);
   }
 }
