@@ -37,7 +37,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent.')),
+        const SnackBar(content: Text('Email khôi phục mật khẩu đã được gửi.')),
       );
       Get.back();
     } catch (e) {
@@ -57,7 +57,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Forget password')),
+      appBar: AppBar(title: const Text('Quên mật khẩu')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -75,7 +75,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               ),
               const SizedBox(height: 20),
               PrimaryButton(
-                title: 'Send request',
+                title: 'Gửi yêu cầu',
                 isLoading: isSubmitting,
                 onPressed: _submit,
               ),

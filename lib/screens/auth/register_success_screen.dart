@@ -19,18 +19,18 @@ class RegisterSuccessScreen extends StatelessWidget {
               const Icon(Icons.verified_rounded, size: 92, color: Colors.green),
               const SizedBox(height: 24),
               const Text(
-                'Your account is ready',
+                'Tài khoản của bạn đã sẵn sàng',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               const Text(
-                'Email verification completed successfully.',
+                'Xác minh email thành công.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 28),
               PrimaryButton(
-                title: 'Continue to login',
+                title: 'Tiếp tục đăng nhập',
                 onPressed: () => Get.offAllNamed(AppRoutes.login),
               ),
             ],

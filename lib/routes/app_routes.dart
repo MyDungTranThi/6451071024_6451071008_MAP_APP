@@ -8,6 +8,7 @@ abstract class AppRoutes {
   static const verifyEmail = '/verify-email';
   static const registerSuccess = '/register-success';
   static const forgetPassword = '/forget-password';
+  static const resetEmailSent = '/reset-email-sent';
   static const mainNavigation = '/main-navigation';
   static const home = '/home';
   static const myStore = '/mystore';
@@ -21,7 +22,15 @@ abstract class AppRoutes {
   static const myOrders = '/my-orders';
   static const popularProduct = '/popular-product';
   static const allBrands = '/all-brand';
-  // TODO: Wishlist route sẽ bổ sung khi tạo WishlistScreen
-  // static const wishlist = '/wishlist';
   static const profile = '/profile';
+  static const updateAccount = '/update-account';
+  static const changeName = '/change-name';
+  static const changeUsername = '/change-username';
+  static const changePassword = '/change-password';
+  static const changeEmail = '/change-email';
+  static const changePhoneNumber = '/change-phonenumber';
+  static const changeGender = '/change-gender';
+  static const changeDateofBirth = '/change-datebirth';
+  static const myShippingAddressview = '/my-shipping-address';
+  static const myBankAccountview = '/my-bank-account';
 }

@@ -1,7 +1,7 @@
 name: map_app_6451071024_6451071008
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.11.0
@@ -14,11 +14,25 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.7.2
+  shared_preferences: ^2.5.5
+  http: ^1.6.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logos/t-store-splash-logo-white.png"
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/logos/
+    - assets/images/on_boarding_images/
+    - assets/images/animations/
+    - assets/images/banners/

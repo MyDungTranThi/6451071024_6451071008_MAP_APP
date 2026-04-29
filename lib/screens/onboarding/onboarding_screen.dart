@@ -20,7 +20,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: controller.skip,
-                  child: const Text('Skip'),
+                  child: const Text('Bỏ qua'),
                 ),
               ),
               Expanded(
@@ -67,7 +67,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
               const SizedBox(height: 20),
               Obx(
                 () => PrimaryButton(
-                  title: controller.isLastPage ? 'Get Started' : 'Next',
+                  title: controller.isLastPage ? 'Bắt đầu' : 'Tiếp',
                   onPressed: controller.nextPage,
                 ),
               ),

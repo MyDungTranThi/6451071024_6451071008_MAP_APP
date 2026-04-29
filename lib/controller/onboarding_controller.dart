@@ -10,18 +10,18 @@ class OnboardingController extends GetxController {
 
   final List<OnboardingModel> onboardingPages = const [
     OnboardingModel(
-      title: 'Discover Books',
-      description: 'Find books by title, author, and genre in seconds.',
+      title: 'Khám phá Sách',
+      description: 'Tìm kiếm sách theo tiêu đề, tác giả và thể loại chỉ trong vài giây.',
       iconName: 'menu_book',
     ),
     OnboardingModel(
-      title: 'Add To Wishlist',
-      description: 'Save your favorite books and come back anytime.',
+      title: 'Yêu thích',
+      description: 'Lưu lại những cuốn sách yêu thích của bạn và đọc bất cứ lúc nào.',
       iconName: 'favorite',
     ),
     OnboardingModel(
-      title: 'Checkout Fast',
-      description: 'Place your order quickly with a smooth checkout flow.',
+      title: 'Thanh toán dễ dàng',
+      description: 'Đặt mua sách nhanh chóng với quy trình thanh toán mượt mà.',
       iconName: 'shopping_cart_checkout',
     ),
   ];
