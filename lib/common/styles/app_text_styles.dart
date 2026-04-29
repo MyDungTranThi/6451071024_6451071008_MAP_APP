@@ -26,4 +26,21 @@ class AppTextStyles {
     fontSize: 14,
     color: Colors.white70,
   );
+
+  static TextStyle sectionTitle = const TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: AppColors.dark,
+  );
+
+  static TextStyle bodyStrong = const TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppColors.dark,
+  );
+
+  static TextStyle caption = const TextStyle(
+    fontSize: 12,
+    color: AppColors.grey,
+  );
 }
