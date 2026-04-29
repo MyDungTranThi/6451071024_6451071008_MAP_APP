@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:map_app_6451071024_6451071008/screens/mystore/all_brand_screen.dart';
+import 'package:map_app_6451071024_6451071008/screens/onboarding/onboarding_screen.dart';
+import 'package:map_app_6451071024_6451071008/screens/splash/splash_screen.dart';
 
 import '../bindings/onboarding_binding.dart';
 import '../bindings/shopping_binding.dart';

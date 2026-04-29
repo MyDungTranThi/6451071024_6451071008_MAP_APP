@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../common/styles/app_colors.dart';
 import '../../common/widgets/primary_button.dart';
+import '../../controller/auth_controller.dart';
+
 import '../../controller/book_catalog_controller.dart';
 import '../../controller/cart_controller.dart';
 import '../../controller/product_detail_controller.dart';
@@ -19,10 +20,11 @@ class ProductDetailScreen extends StatelessWidget {
     final args = Get.arguments as Map<String, dynamic>?;
     final bookId = args?['bookId'] as String? ?? '';
     final catalogController = Get.find<BookCatalogController>();
-    final bookId = Get.arguments as String?;
-    final BookModel? book = bookId == null
-        ? null
-        : catalogController.findById(bookId);
+
+    final detailController = Get.find<ProductDetailController>();
+    final cartController = Get.find<CartController>();
+
+    final book = catalogController.findById(bookId);
 
     if (book == null) {
       return Scaffold(
@@ -34,17 +36,8 @@ class ProductDetailScreen extends StatelessWidget {
     detailController.initForBook(book);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Book details'),
-        actions: [
-          IconButton(
-            onPressed: () => Get.toNamed(AppRoutes.cart),
-            icon: const Icon(Icons.shopping_cart_outlined),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: Colors.white,
+      body: Stack(
         children: [
           CustomScrollView(
             physics: const BouncingScrollPhysics(),

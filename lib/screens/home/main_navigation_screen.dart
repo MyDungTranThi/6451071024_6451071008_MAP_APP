@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:map_app_6451071024_6451071008/screens/wishlist/wishlist_screen.dart';
 import 'home_screen.dart';
 import '../profile/profile_screen.dart';
 import '../mystore/mystore_screen.dart';
@@ -19,8 +20,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<Widget> screens = [
     HomeScreen(),
     MystoreScreen(),
-    // TODO: Thay thế placeholder bằng WishlistScreen khi đã tạo
-    const Scaffold(body: Center(child: Text('Yêu thích - Đang phát triển'))),
+    const WishlistScreen(),
     const ProfileScreen(),
   ];
 
