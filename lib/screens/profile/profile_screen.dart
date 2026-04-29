@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../common/widgets/primary_button.dart';
+import '../../common/styles/app_colors.dart';
+import '../../common/styles/app_text_styles.dart';
+import '../../common/widgets/profile_menu_item.dart';
 import '../../controller/auth_controller.dart';
 import '../../data/models/user_model.dart';
 import '../../routes/app_routes.dart';
+import '../bank_account/my_bank_account_screen.dart';
+import '../shipping_address/my_shipping_address_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -14,168 +17,205 @@ class ProfileScreen extends StatelessWidget {
     final authController = Get.find<AuthController>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      backgroundColor: AppColors.background,
       body: Obx(() {
         final user = authController.currentUser.value;
         if (user == null) {
-          return _buildRequireLogin();
+          return _buildGuestProfile(context);
         }
-        return _buildProfileContent(context, authController, user);
+        return _buildUserProfile(context, authController, user);
       }),
     );
   }
 
-  Widget _buildRequireLogin() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.person_outline, size: 72),
-            const SizedBox(height: 12),
-            const Text(
-              'Login to manage your profile',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            PrimaryButton(
-              title: 'Go to login',
-              onPressed: () => Get.toNamed(AppRoutes.login),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileContent(
+  /// ===== Logged-in Profile =====
+  Widget _buildUserProfile(
     BuildContext context,
     AuthController authController,
     UserModel user,
   ) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Column(
       children: [
-        Card(
-          child: ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(user.fullName.isEmpty ? 'Book Store User' : user.fullName),
-            subtitle: Text(user.email),
+        _buildHeader(context, authController, user),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildAccountSetting(context),
+                  const SizedBox(height: 24),
+                  Text('Cài đặt ứng dụng', style: AppTextStyles.title),
+                  const SizedBox(height: 16),
+                  _buildLogoutButton(context, authController),
+                ],
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.alternate_email),
-                title: const Text('Username'),
-                subtitle: Text(user.username),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.phone_outlined),
-                title: const Text('Phone'),
-                subtitle: Text(user.phone.isEmpty ? '-' : user.phone),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.verified_user_outlined),
-                title: const Text('Email verified'),
-                subtitle: Text(user.emailVerified ? 'Verified' : 'Pending verify'),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        PrimaryButton(
-          title: 'Edit profile',
-          onPressed: () => _showEditProfileDialog(context, authController, user),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: authController.logout,
-          icon: const Icon(Icons.logout),
-          label: const Text('Logout'),
         ),
       ],
     );
   }
 
-  void _showEditProfileDialog(
-    BuildContext context,
-    AuthController authController,
-    UserModel user,
-  ) {
-    final formKey = GlobalKey<FormState>();
-    final firstNameController = TextEditingController(text: user.firstName);
-    final lastNameController = TextEditingController(text: user.lastName);
-    final usernameController = TextEditingController(text: user.username);
-    final phoneController = TextEditingController(text: user.phone);
-
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Edit profile'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
+  /// ===== Header xanh =====
+  Widget _buildHeader(BuildContext context, AuthController authController, UserModel user) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
+      color: AppColors.primaryBlue,
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 32,
+            backgroundColor: Colors.white24,
+            child: ClipOval(
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, color: Colors.blue, size: 40),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  controller: firstNameController,
-                  decoration: const InputDecoration(labelText: 'First name'),
-                  validator: (value) => (value == null || value.trim().isEmpty)
-                      ? 'Required'
-                      : null,
+                Text(
+                  user.fullName.isEmpty ? 'Book Store User' : user.fullName,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-                TextFormField(
-                  controller: lastNameController,
-                  decoration: const InputDecoration(labelText: 'Last name'),
-                  validator: (value) => (value == null || value.trim().isEmpty)
-                      ? 'Required'
-                      : null,
-                ),
-                TextFormField(
-                  controller: usernameController,
-                  decoration: const InputDecoration(labelText: 'Username'),
-                  validator: (value) => (value == null || value.trim().isEmpty)
-                      ? 'Required'
-                      : null,
-                ),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: const InputDecoration(labelText: 'Phone'),
-                ),
+                const SizedBox(height: 4),
+                Text(user.email, style: const TextStyle(fontSize: 14, color: Colors.white70)),
               ],
             ),
           ),
-        ),
-        actions: [
-          TextButton(onPressed: Get.back, child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () async {
-              if (!(formKey.currentState?.validate() ?? false)) {
-                return;
-              }
-              await authController.updateLocalProfile(
-                firstName: firstNameController.text.trim(),
-                lastName: lastNameController.text.trim(),
-                username: usernameController.text.trim(),
-                phone: phoneController.text.trim(),
-              );
-              Get.back();
-            },
-            child: const Text('Save'),
+          IconButton(
+            onPressed: () => Get.toNamed(AppRoutes.updateAccount),
+            icon: const Icon(Icons.edit, color: Colors.white),
           ),
         ],
       ),
-    ).whenComplete(() {
-      firstNameController.dispose();
-      lastNameController.dispose();
-      usernameController.dispose();
-      phoneController.dispose();
-    });
+    );
+  }
+
+  /// ===== Account Setting =====
+  Widget _buildAccountSetting(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Cài đặt tài khoản', style: AppTextStyles.title),
+        const SizedBox(height: 16),
+        ProfileMenuItem(
+          icon: Icons.location_on,
+          title: 'Địa chỉ của tôi',
+          subtitle: 'Quản lý địa chỉ giao hàng',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MyShippingAddressScreen())),
+        ),
+        ProfileMenuItem(
+          icon: Icons.shopping_cart,
+          title: 'Giỏ hàng của tôi',
+          subtitle: 'Xem các mặt hàng trong giỏ hàng',
+          onTap: () => Get.toNamed(AppRoutes.cartOverview),
+        ),
+        ProfileMenuItem(
+          icon: Icons.receipt_long,
+          title: 'Đơn hàng của tôi',
+          subtitle: 'Xem trạng thái đơn hàng',
+          onTap: () => Get.toNamed(AppRoutes.myOrders),
+        ),
+        ProfileMenuItem(
+          icon: Icons.account_balance,
+          title: 'Tài khoản ngân hàng',
+          subtitle: 'Quản lý phương thức thanh toán',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MyBankAccountScreen())),
+        ),
+        ProfileMenuItem(
+          icon: Icons.discount,
+          title: 'Mã giảm giá',
+          subtitle: 'Xem các mã giảm giá có sẵn',
+          onTap: () {},
+        ),
+        ProfileMenuItem(
+          icon: Icons.lock,
+          title: 'Bảo mật tài khoản',
+          subtitle: 'Cài đặt bảo mật và quyền riêng tư',
+          onTap: () {},
+        ),
+      ],
+    );
+  }
+
+  /// ===== Logout =====
+  Widget _buildLogoutButton(BuildContext context, AuthController authController) {
+    return GestureDetector(
+      onTap: () async {
+        bool? confirm = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Đăng xuất'),
+            content: const Text('Bạn có chắc muốn đăng xuất không?'),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        );
+        if (confirm == true) {
+          await authController.logout();
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.red),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Text('Đăng xuất', style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold)),
+        ),
+      ),
+    );
+  }
+
+  /// ===== Guest Profile =====
+  Widget _buildGuestProfile(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
+          color: AppColors.primaryBlue,
+          child: Column(
+            children: [
+              const CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
+              const SizedBox(height: 16),
+              const Text('Guest User', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Get.toNamed(AppRoutes.login),
+                child: const Text('Đăng nhập ngay'),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Text('Vui lòng đăng nhập để sử dụng đầy đủ tính năng', style: TextStyle(color: Colors.grey[600])),
+          ),
+        ),
+      ],
+    );
   }
 }

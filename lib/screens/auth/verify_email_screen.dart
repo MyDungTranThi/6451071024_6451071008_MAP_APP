@@ -22,7 +22,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     final email = (Get.arguments as String?)?.trim() ?? '';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Verify email')),
+      appBar: AppBar(title: const Text('Xác minh email')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -32,24 +32,24 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               const Icon(Icons.mark_email_unread_outlined, size: 92),
               const SizedBox(height: 24),
               const Text(
-                'Verify your email address',
+                'Xác minh địa chỉ email của bạn',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               const Text(
-                'A verification link has been sent to:',
+                'Một liên kết xác minh đã được gửi đến:',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                email.isEmpty ? 'your email' : email,
+                email.isEmpty ? 'email của bạn' : email,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 24),
               PrimaryButton(
-                title: 'I have verified',
+                title: 'Tôi đã xác minh',
                 isLoading: isChecking,
                 onPressed: () async {
                   setState(() => isChecking = true);
@@ -62,7 +62,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                            'Please verify your email before continuing.',
+                            'Vui lòng xác minh email trước khi tiếp tục.',
                           ),
                         ),
                       );
@@ -89,7 +89,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Verification email has been resent.'),
+                              content: Text('Email xác minh đã được gửi lại.'),
                             ),
                           );
                         } catch (e) {
@@ -109,11 +109,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           }
                         }
                       },
-                child: const Text('Resend email'),
+                child: const Text('Gửi lại email'),
               ),
               TextButton(
                 onPressed: () => Get.offAllNamed(AppRoutes.login),
-                child: const Text('Back to login'),
+                child: const Text('Quay lại đăng nhập'),
               ),
             ],
           ),

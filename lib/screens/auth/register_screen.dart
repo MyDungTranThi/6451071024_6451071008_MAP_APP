@@ -45,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!agreePolicy) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please agree with Privacy and Terms.')),
+        const SnackBar(content: Text('Vui lòng đồng ý với Chính sách và Điều khoản.')),
       );
       return;
     }
@@ -90,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: AppBar(title: const Text('Đăng ký')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -100,31 +100,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Create account',
+                  'Tạo tài khoản',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text('Fill in details to create your Book Store account.'),
+                const Text('Điền thông tin để tạo tài khoản Book Store của bạn.'),
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: firstNameController,
-                  decoration: _inputDecoration('First name', Icons.person),
+                  decoration: _inputDecoration('Tên (First Name)', Icons.person),
                   validator: (value) =>
-                      Validators.validateRequired(value ?? '', 'First name'),
+                      Validators.validateRequired(value ?? '', 'Tên'),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: lastNameController,
-                  decoration: _inputDecoration('Last name', Icons.person_outline),
+                  decoration: _inputDecoration('Họ (Last Name)', Icons.person_outline),
                   validator: (value) =>
-                      Validators.validateRequired(value ?? '', 'Last name'),
+                      Validators.validateRequired(value ?? '', 'Họ'),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: usernameController,
-                  decoration: _inputDecoration('Username', Icons.alternate_email),
+                  decoration: _inputDecoration('Tên đăng nhập', Icons.alternate_email),
                   validator: (value) =>
-                      Validators.validateRequired(value ?? '', 'Username'),
+                      Validators.validateRequired(value ?? '', 'Tên đăng nhập'),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -137,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: _inputDecoration('Phone number', Icons.phone_outlined),
+                  decoration: _inputDecoration('Số điện thoại', Icons.phone_outlined),
                   validator: (value) => Validators.validatePhone(value ?? ''),
                 ),
                 const SizedBox(height: 12),
@@ -145,7 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: passwordController,
                   obscureText: obscurePassword,
                   decoration: _inputDecoration(
-                    'Password',
+                    'Mật khẩu',
                     Icons.lock_outline,
                     suffixIcon: IconButton(
                       onPressed: () {
@@ -165,12 +165,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   contentPadding: EdgeInsets.zero,
                   onChanged: (value) => setState(() => agreePolicy = value ?? false),
                   controlAffinity: ListTileControlAffinity.leading,
-                  title: const Text('I agree to Privacy and Terms'),
+                  title: const Text('Tôi đồng ý với Chính sách và Điều khoản'),
                 ),
                 const SizedBox(height: 8),
                 Obx(
                   () => PrimaryButton(
-                    title: 'Create account',
+                    title: 'Tạo tài khoản',
                     isLoading: authController.isRegistering.value,
                     onPressed: _submit,
                   ),
