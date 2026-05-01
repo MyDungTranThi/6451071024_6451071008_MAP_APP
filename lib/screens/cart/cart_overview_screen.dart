@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../controller/cart_controller.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/currency_formatter.dart';
 // TODO: Các import sau sẽ bổ sung khi tạo controller/model tương ứng
 // import '../../controller/login_controller.dart';
 // import '../../data/models/cart_item_model.dart';
@@ -44,16 +45,25 @@ class CartOverviewScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.shopping_cart_outlined, size: 100, color: Colors.grey.shade300),
+                      Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 100,
+                        color: Colors.grey.shade300,
+                      ),
                       const SizedBox(height: 16),
-                      const Text("Giỏ hàng của bạn đang trống", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      const Text(
+                        "Giỏ hàng của bạn đang trống",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () => Get.back(),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade600,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: const Text("Tiếp tục mua sách"),
                       ),
@@ -113,10 +123,19 @@ class CartOverviewScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Tổng thanh toán', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                        const Text(
+                          'Tổng thanh toán',
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
                         Text(
-                          '\$${cartController.totalPrice(catalogController).toStringAsFixed(2)}',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue.shade800),
+                          CurrencyFormatter.formatVnd(
+                            cartController.totalPrice(catalogController),
+                          ),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade800,
+                          ),
                         ),
                       ],
                     ),
@@ -126,23 +145,41 @@ class CartOverviewScreen extends StatelessWidget {
                     child: Container(
                       height: 55,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [Colors.blue.shade700, Colors.blue.shade400]),
+                        gradient: LinearGradient(
+                          colors: [Colors.blue.shade700, Colors.blue.shade400],
+                        ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
-                          BoxShadow(color: Colors.blue.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
                       ),
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          Get.toNamed(AppRoutes.shippingAddress);
-                        },
+                        onPressed: cartController.isEmpty
+                            ? null
+                            : () => Get.toNamed(AppRoutes.orderReview),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
-                        icon: const Icon(Icons.payment_rounded, color: Colors.white),
-                        label: const Text('Thanh toán', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        icon: const Icon(
+                          Icons.payment_rounded,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Thanh toán',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -188,14 +225,21 @@ class _CartBookItem extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey.shade100,
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
@@ -203,7 +247,8 @@ class _CartBookItem extends StatelessWidget {
                 height: 90,
                 width: 70,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Icon(Icons.menu_book, size: 40),
+                errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.menu_book, size: 40),
               ),
             ),
           ),
@@ -216,18 +261,37 @@ class _CartBookItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(author, maxLines: 1, overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 12, color: Colors.blue.shade700, fontWeight: FontWeight.w500)),
+                      child: Text(
+                        author,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                     GestureDetector(
                       onTap: onRemove,
-                      child: Icon(Icons.delete_outline_rounded, color: Colors.red.shade400, size: 22),
+                      child: Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red.shade400,
+                        size: 22,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -244,14 +308,25 @@ class _CartBookItem extends StatelessWidget {
                           Container(
                             constraints: const BoxConstraints(minWidth: 30),
                             alignment: Alignment.center,
-                            child: Text(quantity.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text(
+                              quantity.toString(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                           _QtyButton(icon: Icons.add, onTap: onIncrease),
                         ],
                       ),
                     ),
-                    Text('\$${total.toStringAsFixed(2)}',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blue.shade800)),
+                    Text(
+                      CurrencyFormatter.formatVnd(total),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.blue.shade800,
+                      ),
+                    ),
                   ],
                 ),
               ],

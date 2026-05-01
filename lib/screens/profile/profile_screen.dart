@@ -120,6 +120,12 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MyShippingAddressScreen())),
         ),
         ProfileMenuItem(
+          icon: Icons.favorite,
+          title: 'Danh sách yêu thích',
+          subtitle: 'Xem các mặt hàng bạn đã thích',
+          onTap: () => Get.toNamed(AppRoutes.wishlist),
+        ),
+        ProfileMenuItem(
           icon: Icons.shopping_cart,
           title: 'Giỏ hàng của tôi',
           subtitle: 'Xem các mặt hàng trong giỏ hàng',
@@ -142,6 +148,12 @@ class ProfileScreen extends StatelessWidget {
           title: 'Mã giảm giá',
           subtitle: 'Xem các mã giảm giá có sẵn',
           onTap: () {},
+        ),
+        ProfileMenuItem(
+          icon: Icons.settings,
+          title: 'Cài đặt',
+          subtitle: 'Giao diện và ngôn ngữ',
+          onTap: () => Get.toNamed(AppRoutes.settings),
         ),
         ProfileMenuItem(
           icon: Icons.lock,

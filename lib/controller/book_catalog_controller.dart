@@ -13,35 +13,44 @@ class BookCatalogController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString syncStatusMessage = ''.obs;
 
+  var searchResults = <BookModel>[].obs;
+
+  var selectedBook = Rxn<BookModel>();
+  var popularBooks = <BookModel>[].obs;
+
   @override
   void onInit() {
     super.onInit();
-    loadBooks();
+    fetchBooks();
   }
 
-  Future<void> loadBooks() async {
-    isLoading.value = true;
-    syncStatusMessage.value = '';
-
+  Future<void> fetchBooks() async {
     try {
-      final cloudBooks = await _bookRepository.getBooksWithCloudSync(
-        fallbackBooks: _defaultBooks,
-      );
-
-      if (cloudBooks.isEmpty) {
-        allBooks.assignAll(_defaultBooks);
-        syncStatusMessage.value =
-            'No cloud data found. Displaying local sample books.';
-      } else {
-        allBooks.assignAll(cloudBooks);
-      }
-    } catch (_) {
-      allBooks.assignAll(_defaultBooks);
-      syncStatusMessage.value =
-          'Cloud sync unavailable. Displaying local sample books.';
+      isLoading.value = true;
+      final fetchedBooks = await _bookRepository.getBooks();
+      allBooks.assignAll(fetchedBooks);
+      _refreshDerivedBooks();
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void getPopularBooks() {
+    final activeBooks = List<BookModel>.from(allBooks)
+      ..sort((a, b) {
+        final ratingCompare = b.rating.compareTo(a.rating);
+        if (ratingCompare != 0) return ratingCompare;
+        return b.soldQuantity.compareTo(a.soldQuantity);
+      });
+
+    final highRatedBooks = activeBooks
+        .where((book) => book.rating >= 4.5)
+        .take(10)
+        .toList();
+
+    popularBooks.assignAll(
+      highRatedBooks.isNotEmpty ? highRatedBooks : activeBooks.take(10),
+    );
   }
 
   List<String> get genres {
@@ -67,10 +76,27 @@ class BookCatalogController extends GetxController {
 
   void onSearchChanged(String value) {
     searchQuery.value = value;
+    _refreshSearchResults();
   }
 
   void selectGenre(String genre) {
     selectedGenre.value = genre;
+    _refreshSearchResults();
+  }
+
+  void _refreshDerivedBooks() {
+    getPopularBooks();
+    _refreshSearchResults();
+  }
+
+  void _refreshSearchResults() {
+    final keyword = searchQuery.value.trim().toLowerCase();
+    if (keyword.isEmpty) {
+      searchResults.clear();
+      return;
+    }
+
+    searchResults.assignAll(filteredBooks);
   }
 
   BookModel? findById(String id) {
@@ -80,97 +106,4 @@ class BookCatalogController extends GetxController {
       return null;
     }
   }
-
-  static const List<BookModel> _defaultBooks = [
-    BookModel(
-      id: 'b1',
-      title: 'Clean Code',
-      author: 'Robert C. Martin',
-      publisher: 'Prentice Hall',
-      genre: 'Software Engineering',
-      pages: 464,
-      price: 18.5,
-      coverImage:
-          'https://images-na.ssl-images-amazon.com/images/I/41SH-SvWPxL._SX374_BO1,204,203,200_.jpg',
-      availableFormats: [BookFormat.paperback, BookFormat.ebook],
-      description: 'A Handbook of Agile Software Craftsmanship.',
-    ),
-    BookModel(
-      id: 'b2',
-      title: 'Atomic Habits',
-      author: 'James Clear',
-      publisher: 'Avery',
-      genre: 'Self-help',
-      pages: 320,
-      price: 14.0,
-      coverImage:
-          'https://images-na.ssl-images-amazon.com/images/I/513Y5o-DYtL._SX329_BO1,204,203,200_.jpg',
-      availableFormats: [
-        BookFormat.paperback,
-        BookFormat.hardcover,
-        BookFormat.ebook,
-      ],
-      description: 'An Easy & Proven Way to Build Good Habits.',
-    ),
-    BookModel(
-      id: 'b3',
-      title: 'The Pragmatic Programmer',
-      author: 'Andrew Hunt',
-      publisher: 'Addison-Wesley',
-      genre: 'Software Engineering',
-      pages: 352,
-      price: 21.0,
-      coverImage:
-          'https://images-na.ssl-images-amazon.com/images/I/41uPjEenkFL._SX380_BO1,204,203,200_.jpg',
-      availableFormats: [BookFormat.paperback, BookFormat.hardcover],
-      description: 'Your Journey to Mastery.',
-    ),
-    BookModel(
-      id: 'b4',
-      title: 'Dune',
-      author: 'Frank Herbert',
-      publisher: 'Ace',
-      genre: 'Science Fiction',
-      pages: 688,
-      price: 16.0,
-      coverImage:
-          'https://images-na.ssl-images-amazon.com/images/I/41UZeCEKOBL._SX331_BO1,204,203,200_.jpg',
-      availableFormats: [
-        BookFormat.paperback,
-        BookFormat.hardcover,
-        BookFormat.ebook,
-      ],
-      description: 'Epic science fiction classic.',
-    ),
-    BookModel(
-      id: 'b5',
-      title: 'Thinking, Fast and Slow',
-      author: 'Daniel Kahneman',
-      publisher: 'Farrar, Straus and Giroux',
-      genre: 'Psychology',
-      pages: 512,
-      price: 15.0,
-      coverImage:
-          'https://images-na.ssl-images-amazon.com/images/I/41f-vtLhYzL._SX322_BO1,204,203,200_.jpg',
-      availableFormats: [BookFormat.paperback, BookFormat.ebook],
-      description: 'A landmark book in behavioral science.',
-    ),
-    BookModel(
-      id: 'b6',
-      title: 'The Hobbit',
-      author: 'J.R.R. Tolkien',
-      publisher: 'Mariner Books',
-      genre: 'Fantasy',
-      pages: 304,
-      price: 13.5,
-      coverImage:
-          'https://images-na.ssl-images-amazon.com/images/I/41aQPTCmeVL._SX331_BO1,204,203,200_.jpg',
-      availableFormats: [
-        BookFormat.paperback,
-        BookFormat.hardcover,
-        BookFormat.ebook,
-      ],
-      description: 'A fantasy novel and prelude to The Lord of the Rings.',
-    ),
-  ];
 }

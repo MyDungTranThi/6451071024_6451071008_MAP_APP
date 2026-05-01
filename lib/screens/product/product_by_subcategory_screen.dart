@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/currency_formatter.dart';
 // TODO: Sẽ bổ sung khi cần
 // import '../../common/widgets/product_card.dart';
 
@@ -25,7 +26,10 @@ class ProductBySubCategoryScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(categoryName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+          categoryName,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         centerTitle: true,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -41,7 +45,11 @@ class ProductBySubCategoryScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (catalogController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.blue)));
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            ),
+          );
         }
 
         final books = catalogController.filteredBooks;
@@ -51,9 +59,16 @@ class ProductBySubCategoryScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.search_off_rounded, size: 80, color: Colors.grey.shade300),
+                Icon(
+                  Icons.search_off_rounded,
+                  size: 80,
+                  color: Colors.grey.shade300,
+                ),
                 const SizedBox(height: 16),
-                Text("Không có sách nào trong mục này", style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+                Text(
+                  "Không có sách nào trong mục này",
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                ),
               ],
             ),
           );
@@ -64,17 +79,29 @@ class ProductBySubCategoryScreen extends StatelessWidget {
           itemCount: books.length,
           physics: const BouncingScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: 0.58,
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 0.58,
           ),
           itemBuilder: (context, index) {
             final book = books[index];
             return GestureDetector(
-              onTap: () => Get.toNamed(AppRoutes.productDetail, arguments: {'bookId': book.id}),
+              onTap: () => Get.toNamed(
+                AppRoutes.productDetail,
+                arguments: {'bookId': book.id},
+              ),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,9 +109,19 @@ class ProductBySubCategoryScreen extends StatelessWidget {
                     Expanded(
                       flex: 3,
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                        child: Image.network(book.coverImage, width: double.infinity, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade200, child: const Icon(Icons.menu_book, size: 40))),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                        child: Image.network(
+                          book.coverImage,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: Colors.grey.shade200,
+                            child: const Icon(Icons.menu_book, size: 40),
+                          ),
+                        ),
                       ),
                     ),
                     Expanded(
@@ -94,11 +131,33 @@ class ProductBySubCategoryScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text(
+                              book.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text(book.author, maxLines: 1, style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
+                            Text(
+                              book.author,
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 11,
+                              ),
+                            ),
                             const Spacer(),
-                            Text('\$${book.price.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade800, fontSize: 15)),
+                            Text(
+                              CurrencyFormatter.formatVnd(book.price),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade800,
+                                fontSize: 15,
+                              ),
+                            ),
                           ],
                         ),
                       ),

@@ -15,7 +15,11 @@ class WishlistScreen extends StatelessWidget {
     final wishlistController = Get.find<WishlistController>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Wishlist')),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text('Danh sách yêu thích'),
+        centerTitle: true,
+      ),
       body: Obx(() {
         if (!authController.isLoggedIn) {
           return _buildRequireLogin();
@@ -24,22 +28,44 @@ class WishlistScreen extends StatelessWidget {
         return Obx(() {
           final books = wishlistController.wishlistBooks;
           if (books.isEmpty) {
-            return const Center(child: Text('Your wishlist is empty.'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.favorite_border, size: 80, color: Colors.grey.shade300),
+                  const SizedBox(height: 16),
+                  const Text('Danh sách yêu thích đang trống', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                ],
+              ),
+            );
           }
 
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: books.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (_, index) {
               final book = books[index];
-              return BookTileCard(
-                book: book,
-                onTap: () =>
-                    Get.toNamed(AppRoutes.productDetail, arguments: book.id),
-                trailing: IconButton(
-                  onPressed: () => wishlistController.toggle(book),
-                  icon: const Icon(Icons.favorite, color: Colors.red),
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: BookTileCard(
+                  book: book,
+                  onTap: () =>
+                      Get.toNamed(AppRoutes.productDetail, arguments: {'bookId': book.id}),
+                  trailing: IconButton(
+                    onPressed: () => wishlistController.toggleWishlist(book),
+                    icon: const Icon(Icons.favorite, color: Colors.red),
+                  ),
                 ),
               );
             },
@@ -56,16 +82,26 @@ class WishlistScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.favorite_border, size: 72),
-            const SizedBox(height: 12),
-            const Text(
-              'Login to see your wishlist',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+            Icon(Icons.favorite_border, size: 80, color: Colors.grey.shade300),
             const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => Get.toNamed(AppRoutes.login),
-              child: const Text('Go to login'),
+            const Text(
+              'Đăng nhập để xem danh sách yêu thích',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: 200,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => Get.toNamed(AppRoutes.login),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade700,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                ),
+                child: const Text('Đăng nhập', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
             ),
           ],
         ),

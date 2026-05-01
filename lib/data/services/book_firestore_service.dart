@@ -20,18 +20,55 @@ class BookFirestoreService {
     }).toList();
   }
 
-  Future<void> seedBooksIfEmpty(List<BookModel> defaultBooks) async {
-    final snapshot = await _booksRef.limit(1).get();
-    if (snapshot.docs.isNotEmpty) {
-      return;
+  Future<BookModel?> fetchBookById(String id) async {
+    final doc = await _booksRef.doc(id).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      data['id'] = doc.id;
+      return BookModel.fromJson(data);
     }
+    return null;
+  }
 
-    final batch = _firestore.batch();
-    for (final book in defaultBooks) {
-      final docRef = _booksRef.doc(book.id);
-      batch.set(docRef, book.toJson());
-    }
+  Future<List<BookModel>> getBooksByBrand(String brandId) async {
+    final snapshot = await _booksRef
+        .where('brandId', isEqualTo: brandId)
+        .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return BookModel.fromJson(data);
+    }).toList();
+  }
 
-    await batch.commit();
+  Future<List<BookModel>> getPopularBooks() async {
+    final snapshot = await _booksRef
+        .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
+        .orderBy('soldQuantity', descending: true)
+        .limit(10)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return BookModel.fromJson(data);
+    }).toList();
+  }
+
+  Future<List<BookModel>> searchBooks(String query) async {
+    // Basic search on client-side is preferred if using standard Firestore,
+    // but here we can just fetch active ones and filter, or use an index.
+    // For simplicity, we fetch all active books and let the controller filter.
+    final snapshot = await _booksRef
+        .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return BookModel.fromJson(data);
+    }).toList();
   }
 }

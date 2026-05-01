@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/models/book_model.dart';
+import '../../utils/currency_formatter.dart';
 
 class BookTileCard extends StatelessWidget {
   const BookTileCard({
@@ -43,7 +44,7 @@ class BookTileCard extends StatelessWidget {
         trailing:
             trailing ??
             Text(
-              '\$${book.price.toStringAsFixed(2)}',
+              CurrencyFormatter.formatVnd(book.price),
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
       ),

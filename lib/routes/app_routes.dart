@@ -22,6 +22,7 @@ abstract class AppRoutes {
   static const myOrders = '/my-orders';
   static const popularProduct = '/popular-product';
   static const allBrands = '/all-brand';
+  static const brandDetail = '/brand-detail';
   static const profile = '/profile';
   static const updateAccount = '/update-account';
   static const changeName = '/change-name';
@@ -33,4 +34,10 @@ abstract class AppRoutes {
   static const changeDateofBirth = '/change-datebirth';
   static const myShippingAddressview = '/my-shipping-address';
   static const myBankAccountview = '/my-bank-account';
+  static const settings = '/settings';
+  static const wishlist = '/wishlist';
+  static const writeReview = '/write-review';
+  static const reviewRating = '/review-rating';
+  static const notifications = '/notifications';
+  static const orderDetail = '/order-detail';
 }
