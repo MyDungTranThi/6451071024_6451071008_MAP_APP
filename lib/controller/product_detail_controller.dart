@@ -26,8 +26,8 @@ class ProductDetailController extends GetxController {
     }
   }
 
-  void addToCart(BookModel book) {
+  Future<void> addToCart(BookModel book) async {
     final cartController = Get.find<CartController>();
-    cartController.addBook(book, quantity: quantity.value);
+    await cartController.addBook(book, quantity: quantity.value);
   }
 }

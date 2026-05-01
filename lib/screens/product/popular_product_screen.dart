@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/currency_formatter.dart';
 // TODO: Các import sau sẽ bổ sung khi tạo widget/controller tương ứng
 // import '../../common/widgets/product_card.dart';
 
@@ -15,7 +16,10 @@ class PopularProductScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Sách phổ biến', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text(
+          'Sách phổ biến',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         centerTitle: true,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -32,7 +36,9 @@ class PopularProductScreen extends StatelessWidget {
       body: Obx(() {
         if (catalogController.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.blue)),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            ),
           );
         }
 
@@ -43,9 +49,16 @@ class PopularProductScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey.shade300),
+                Icon(
+                  Icons.inventory_2_outlined,
+                  size: 80,
+                  color: Colors.grey.shade300,
+                ),
                 const SizedBox(height: 16),
-                Text("Không tìm thấy Sách nào", style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+                Text(
+                  "Không tìm thấy Sách nào",
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                ),
               ],
             ),
           );
@@ -65,7 +78,10 @@ class PopularProductScreen extends StatelessWidget {
             final book = books[index];
             return _BookGridCard(
               book: book,
-              onTap: () => Get.toNamed(AppRoutes.productDetail, arguments: {'bookId': book.id}),
+              onTap: () => Get.toNamed(
+                AppRoutes.productDetail,
+                arguments: {'bookId': book.id},
+              ),
             );
           },
         );
@@ -87,7 +103,13 @@ class _BookGridCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,9 +117,19 @@ class _BookGridCard extends StatelessWidget {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                child: Image.network(book.coverImage, width: double.infinity, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade200, child: const Icon(Icons.menu_book, size: 40))),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: Image.network(
+                  book.coverImage,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.menu_book, size: 40),
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -107,11 +139,33 @@ class _BookGridCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    Text(
+                      book.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(book.author, maxLines: 1, style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
+                    Text(
+                      book.author,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 11,
+                      ),
+                    ),
                     const Spacer(),
-                    Text('\$${book.price.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade800, fontSize: 15)),
+                    Text(
+                      CurrencyFormatter.formatVnd(book.price),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade800,
+                        fontSize: 15,
+                      ),
+                    ),
                   ],
                 ),
               ),

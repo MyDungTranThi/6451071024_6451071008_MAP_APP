@@ -75,7 +75,22 @@
    - Dự án đã được liên kết thông qua tệp `firebase_options.dart` và `google-services.json`. 
    - Nếu bạn muốn dùng Firebase của riêng mình, hãy cấu hình lại thông qua [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/).
 
-4. **Biên dịch và chạy ứng dụng:**
+4. **Tạo dữ liệu mẫu trên Firestore (Nếu Firestore đang trống):**
+
+   Script seed cần chạy trong môi trường Flutter vì sử dụng Firebase/Firestore plugin. Trước tiên kiểm tra thiết bị khả dụng:
+   ```bash
+   flutter devices
+   ```
+
+   Chạy seed trên Android emulator hoặc thiết bị đang kết nối:
+   ```bash
+   flutter run -t lib/seed_firestore_app.dart -d emulator-5554
+   ```
+
+
+   Script sẽ tạo dữ liệu mẫu cho `books`, `brands`, `categories`, `orders`, `reviews`, `notifications`, `users` và các subcollection như `addresses`, `bank_accounts`, `cartItems`.
+
+5. **Biên dịch và chạy ứng dụng:**
    ```bash
    flutter run
    ```

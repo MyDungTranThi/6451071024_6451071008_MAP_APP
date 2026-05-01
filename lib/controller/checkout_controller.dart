@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../data/models/order_model.dart';
 import '../data/repositories/order_repository.dart';
+import 'auth_controller.dart';
 import 'book_catalog_controller.dart';
 import 'cart_controller.dart';
 
@@ -41,12 +42,25 @@ class CheckoutController extends GetxController {
     required CartController cartController,
     required double total,
   }) async {
-    if (!hasShippingInfo || cartController.isEmpty) {
+    lastErrorMessage.value = '';
+
+    if (!hasShippingInfo) {
+      lastErrorMessage.value = 'Vui lòng chọn địa chỉ giao hàng.';
+      return null;
+    }
+
+    if (cartController.isEmpty) {
+      lastErrorMessage.value = 'Giỏ hàng đang trống.';
+      return null;
+    }
+
+    final user = Get.find<AuthController>().currentUser.value;
+    if (user == null || user.id.isEmpty) {
+      lastErrorMessage.value = 'Vui lòng đăng nhập lại trước khi đặt hàng.';
       return null;
     }
 
     isPlacingOrder.value = true;
-    lastErrorMessage.value = '';
 
     final catalogController = Get.find<BookCatalogController>();
 
@@ -57,11 +71,17 @@ class CheckoutController extends GetxController {
         continue;
       }
 
+      final salePrice = book.salePrice;
+      final unitPrice =
+          salePrice != null && salePrice > 0 && salePrice < book.price
+          ? salePrice
+          : book.price;
+
       orderItems.add(
         OrderItemModel(
           bookId: book.id,
           title: book.title,
-          unitPrice: book.price,
+          unitPrice: unitPrice,
           quantity: entry.value,
         ),
       );
@@ -69,7 +89,7 @@ class CheckoutController extends GetxController {
 
     if (orderItems.isEmpty) {
       lastErrorMessage.value =
-          'No valid cart items to sync. Please refresh and try again.';
+          'Không tìm thấy sản phẩm hợp lệ. Vui lòng tải lại và thử lại.';
       isPlacingOrder.value = false;
       return null;
     }
@@ -79,6 +99,8 @@ class CheckoutController extends GetxController {
           'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
 
       final order = OrderModel(
+        id: '',
+        userId: user.id,
         orderCode: orderCode,
         recipientName: recipientName.value,
         phoneNumber: phoneNumber.value,
@@ -88,6 +110,7 @@ class CheckoutController extends GetxController {
         totalItems: cartController.totalItems,
         items: orderItems,
         createdAt: DateTime.now(),
+        status: 'created',
       );
 
       await _orderRepository.createOrder(order);
@@ -95,12 +118,12 @@ class CheckoutController extends GetxController {
       lastOrderCode.value = orderCode;
       lastOrderTotal.value = total;
 
-      cartController.clear();
+      await cartController.clear();
 
       return orderCode;
     } catch (_) {
       lastErrorMessage.value =
-          'Cannot sync order to Firebase right now. Please try again.';
+          'Không thể đồng bộ đơn hàng lên Firebase. Vui lòng thử lại.';
       return null;
     } finally {
       isPlacingOrder.value = false;

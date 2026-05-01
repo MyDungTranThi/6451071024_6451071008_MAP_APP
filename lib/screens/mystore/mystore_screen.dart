@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/currency_formatter.dart';
 // TODO: Các controller/widget sau sẽ được tạo ở giai đoạn sau
 // import '../../controller/mystore_controller.dart';
 // import '../../controller/brand_controller.dart';
@@ -10,7 +11,8 @@ import '../../routes/app_routes.dart';
 class MystoreScreen extends StatelessWidget {
   MystoreScreen({super.key});
 
-  final BookCatalogController catalogController = Get.find<BookCatalogController>();
+  final BookCatalogController catalogController =
+      Get.find<BookCatalogController>();
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +83,8 @@ class MystoreScreen extends StatelessWidget {
                   itemCount: catalogController.genres.length,
                   itemBuilder: (_, index) {
                     final genre = catalogController.genres[index];
-                    final isSelected = catalogController.selectedGenre.value == genre;
+                    final isSelected =
+                        catalogController.selectedGenre.value == genre;
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: ChoiceChip(
@@ -90,8 +93,12 @@ class MystoreScreen extends StatelessWidget {
                         selectedColor: Colors.blue.shade600,
                         backgroundColor: Colors.white,
                         labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : Colors.blueGrey.shade600,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.blueGrey.shade600,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                         ),
                         onSelected: (_) => catalogController.selectGenre(genre),
                       ),
@@ -112,21 +119,18 @@ class MystoreScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   childAspectRatio: 0.58,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (_, index) {
-                    final book = catalogController.filteredBooks[index];
-                    return _BookGridCard(
-                      book: book,
-                      onTap: () {
-                        Get.toNamed(
-                          AppRoutes.productDetail,
-                          arguments: {'bookId': book.id},
-                        );
-                      },
-                    );
-                  },
-                  childCount: catalogController.filteredBooks.length,
-                ),
+                delegate: SliverChildBuilderDelegate((_, index) {
+                  final book = catalogController.filteredBooks[index];
+                  return _BookGridCard(
+                    book: book,
+                    onTap: () {
+                      Get.toNamed(
+                        AppRoutes.productDetail,
+                        arguments: {'bookId': book.id},
+                      );
+                    },
+                  );
+                }, childCount: catalogController.filteredBooks.length),
               ),
             ),
 
@@ -151,7 +155,11 @@ class MystoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title, {VoidCallback? onSeeAll}) {
+  Widget _buildSectionTitle(
+    BuildContext context,
+    String title, {
+    VoidCallback? onSeeAll,
+  }) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 25, 24, 10),
@@ -169,7 +177,10 @@ class MystoreScreen extends StatelessWidget {
             if (onSeeAll != null)
               TextButton(
                 onPressed: onSeeAll,
-                child: const Text("Xem tất cả", style: TextStyle(color: Colors.blue)),
+                child: const Text(
+                  "Xem tất cả",
+                  style: TextStyle(color: Colors.blue),
+                ),
               ),
           ],
         ),
@@ -232,18 +243,24 @@ class _BookGridCard extends StatelessWidget {
                       book.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       book.author,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 11,
+                      ),
                     ),
                     const Spacer(),
                     Text(
-                      '\$${book.price.toStringAsFixed(2)}',
+                      CurrencyFormatter.formatVnd(book.price),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.blue.shade800,

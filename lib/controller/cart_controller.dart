@@ -1,10 +1,31 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../data/models/book_model.dart';
+import '../data/repositories/cart_repository.dart';
 import 'book_catalog_controller.dart';
 
 class CartController extends GetxController {
+  CartController(this._cartRepository);
+
+  final CartRepository _cartRepository;
   final RxMap<String, int> items = <String, int>{}.obs;
+  StreamSubscription<Map<String, int>>? _cartSubscription;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _cartSubscription = _cartRepository.watchCartItems().listen((remoteItems) {
+      items.assignAll(remoteItems);
+    });
+  }
+
+  @override
+  void onClose() {
+    _cartSubscription?.cancel();
+    super.onClose();
+  }
 
   int quantityFor(String bookId) => items[bookId] ?? 0;
 
@@ -14,26 +35,22 @@ class CartController extends GetxController {
 
   List<MapEntry<String, int>> get lines => items.entries.toList();
 
-  void addBook(BookModel book, {int quantity = 1}) {
+  Future<void> addBook(BookModel book, {int quantity = 1}) async {
     final current = items[book.id] ?? 0;
-    items[book.id] = current + quantity;
+    await _cartRepository.setQuantity(book.id, current + quantity);
   }
 
-  void increase(String bookId) {
-    items[bookId] = (items[bookId] ?? 0) + 1;
+  Future<void> increase(String bookId) async {
+    await _cartRepository.setQuantity(bookId, (items[bookId] ?? 0) + 1);
   }
 
-  void decrease(String bookId) {
+  Future<void> decrease(String bookId) async {
     final current = items[bookId] ?? 0;
-    if (current <= 1) {
-      items.remove(bookId);
-    } else {
-      items[bookId] = current - 1;
-    }
+    await _cartRepository.setQuantity(bookId, current - 1);
   }
 
-  void remove(String bookId) {
-    items.remove(bookId);
+  Future<void> remove(String bookId) async {
+    await _cartRepository.remove(bookId);
   }
 
   double totalPrice(BookCatalogController catalogController) {
@@ -41,13 +58,21 @@ class CartController extends GetxController {
     for (final entry in items.entries) {
       final book = catalogController.findById(entry.key);
       if (book != null) {
-        total += book.price * entry.value;
+        total += _sellingPrice(book) * entry.value;
       }
     }
     return total;
   }
 
-  void clear() {
-    items.clear();
+  double _sellingPrice(BookModel book) {
+    final salePrice = book.salePrice;
+    if (salePrice != null && salePrice > 0 && salePrice < book.price) {
+      return salePrice;
+    }
+    return book.price;
+  }
+
+  Future<void> clear() async {
+    await _cartRepository.clear();
   }
 }

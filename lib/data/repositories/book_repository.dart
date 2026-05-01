@@ -6,10 +6,23 @@ class BookRepository {
 
   final BookFirestoreService _bookFirestoreService;
 
-  Future<List<BookModel>> getBooksWithCloudSync({
-    required List<BookModel> fallbackBooks,
-  }) async {
-    await _bookFirestoreService.seedBooksIfEmpty(fallbackBooks);
+  Future<List<BookModel>> getBooks() {
     return _bookFirestoreService.fetchBooks();
+  }
+
+  Future<BookModel?> fetchBookById(String id) {
+    return _bookFirestoreService.fetchBookById(id);
+  }
+
+  Future<List<BookModel>> getBooksByBrand(String brandId) {
+    return _bookFirestoreService.getBooksByBrand(brandId);
+  }
+
+  Future<List<BookModel>> getPopularBooks() {
+    return _bookFirestoreService.getPopularBooks();
+  }
+
+  Future<List<BookModel>> searchBooks(String query) {
+    return _bookFirestoreService.searchBooks(query);
   }
 }
