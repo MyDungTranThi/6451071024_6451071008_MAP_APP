@@ -94,7 +94,7 @@ class _EditBankAccountScreenState extends State<EditBankAccountScreen> {
             const SizedBox(height: 8),
             DropdownButtonFormField<dynamic>(
               isExpanded: true,
-              value: _selectedBank,
+              initialValue: _selectedBank,
               hint: const Text("Chọn ngân hàng"),
               decoration: InputDecoration(
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

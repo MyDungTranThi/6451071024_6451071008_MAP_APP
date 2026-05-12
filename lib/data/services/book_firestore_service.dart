@@ -43,6 +43,19 @@ class BookFirestoreService {
     }).toList();
   }
 
+  Future<List<BookModel>> getBooksByCategory(String categoryId) async {
+    final snapshot = await _booksRef
+        .where('categoryIds', arrayContains: categoryId)
+        .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return BookModel.fromJson(data);
+    }).toList();
+  }
+
   Future<List<BookModel>> getPopularBooks() async {
     final snapshot = await _booksRef
         .where('isActive', isEqualTo: true)

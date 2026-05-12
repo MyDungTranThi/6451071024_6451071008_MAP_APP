@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../models/cart_item_model.dart';
+import '../models/book_model.dart';
+
 class CartFirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -23,26 +26,32 @@ class CartFirestoreService {
     return ref;
   }
 
-  Stream<Map<String, int>> watchCartItems() {
+  Stream<List<CartItemModel>> watchCartItems() {
     final ref = _cartItemsRef;
-    if (ref == null) return Stream.value(<String, int>{});
+    if (ref == null) return Stream.value(<CartItemModel>[]);
 
     return ref.snapshots().map((snapshot) {
-      final items = <String, int>{};
+      final items = <CartItemModel>[];
       for (final doc in snapshot.docs) {
-        final quantity = (doc.data()['quantity'] as num?)?.toInt() ?? 0;
-        if (quantity > 0) {
-          items[doc.id] = quantity;
+        final item = CartItemModel.fromJson(id: doc.id, json: doc.data());
+        if (item.quantity > 0) {
+          items.add(item);
         }
       }
+      items.sort((a, b) => a.id.compareTo(b.id));
       return items;
     });
   }
 
-  Future<void> setQuantity(String bookId, int quantity) async {
+  Future<void> setQuantity({
+    required String bookId,
+    required BookFormat format,
+    required int quantity,
+  }) async {
     final ref = _requireCartItemsRef();
+    final itemId = CartItemModel.buildId(bookId, format);
+    final itemRef = ref.doc(itemId);
 
-    final itemRef = ref.doc(bookId);
     if (quantity <= 0) {
       await itemRef.delete();
       return;
@@ -50,15 +59,18 @@ class CartFirestoreService {
 
     await itemRef.set({
       'bookId': bookId,
+      'format': bookFormatToString(format),
+      'formatLabel': bookFormatLabel(format),
       'quantity': quantity,
       'updatedAt': FieldValue.serverTimestamp(),
+      'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
-  Future<void> remove(String bookId) async {
+  Future<void> remove(String itemId) async {
     final ref = _requireCartItemsRef();
 
-    await ref.doc(bookId).delete();
+    await ref.doc(itemId).delete();
   }
 
   Future<void> clear() async {

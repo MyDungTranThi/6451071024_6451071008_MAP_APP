@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../data/models/brand_model.dart';
-import 'package:get/get.dart';
 
 class BrandCard extends StatelessWidget {
   final BrandModel brand;
   final VoidCallback onTap;
 
-  const BrandCard({
-    super.key,
-    required this.brand,
-    required this.onTap,
-  });
+  const BrandCard({super.key, required this.brand, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +34,8 @@ class BrandCard extends StatelessWidget {
                 child: Image.network(
                   brand.imageUrl,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.store,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
+                  errorBuilder: (_, _, _) =>
+                      const Icon(Icons.store, size: 40, color: Colors.grey),
                 ),
               ),
             ),
@@ -63,21 +56,14 @@ class BrandCard extends StatelessWidget {
                 ),
                 if (brand.isFeatured) ...[
                   const SizedBox(width: 4),
-                  const Icon(
-                    Icons.verified,
-                    color: Colors.blue,
-                    size: 14,
-                  ),
-                ]
+                  const Icon(Icons.verified, color: Colors.blue, size: 14),
+                ],
               ],
             ),
             const SizedBox(height: 4),
             Text(
               "${brand.productsCount} sản phẩm",
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
           ],
         ),

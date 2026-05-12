@@ -28,6 +28,10 @@ class ProductDetailController extends GetxController {
 
   Future<void> addToCart(BookModel book) async {
     final cartController = Get.find<CartController>();
-    await cartController.addBook(book, quantity: quantity.value);
+    await cartController.addBook(
+      book,
+      format: selectedFormat.value,
+      quantity: quantity.value,
+    );
   }
 }

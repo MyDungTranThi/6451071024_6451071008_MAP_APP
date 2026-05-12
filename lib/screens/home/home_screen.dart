@@ -235,9 +235,13 @@ class HomeScreen extends StatelessWidget {
                                 ? cat.image
                                 : 'https://via.placeholder.com/150',
                             title: cat.name,
-                            onTap: () {
-                              // TODO: Navigate to category products
-                            },
+                            onTap: () => Get.toNamed(
+                              AppRoutes.productsByCategory,
+                              arguments: {
+                                'categoryId': cat.id,
+                                'categoryName': cat.name,
+                              },
+                            ),
                           ),
                         );
                       },

@@ -63,6 +63,8 @@ class OrderDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             ...order.items.map((item) {
               final book = catalog.findById(item.bookId);
+              final imageUrl = book?.coverImage ?? item.coverImage;
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
@@ -72,16 +74,28 @@ class OrderDetailScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    if (book != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          book.coverImage,
-                          width: 50,
-                          height: 70,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: imageUrl.isEmpty
+                          ? Container(
+                              width: 50,
+                              height: 70,
+                              color: Colors.grey.shade100,
+                              child: const Icon(Icons.menu_book),
+                            )
+                          : Image.network(
+                              imageUrl,
+                              width: 50,
+                              height: 70,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Container(
+                                width: 50,
+                                height: 70,
+                                color: Colors.grey.shade100,
+                                child: const Icon(Icons.menu_book),
+                              ),
+                            ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -91,6 +105,8 @@ class OrderDetailScreen extends StatelessWidget {
                             book?.title ?? item.title,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
+                          const SizedBox(height: 4),
+                          Text('Phân loại: ${item.formatLabel}'),
                           Text('Số lượng: ${item.quantity}'),
                           if (isDelivered &&
                               book != null &&
@@ -109,9 +125,7 @@ class OrderDetailScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      CurrencyFormatter.formatVnd(
-                        item.unitPrice * item.quantity,
-                      ),
+                      CurrencyFormatter.formatVnd(item.subtotal),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -119,30 +133,7 @@ class OrderDetailScreen extends StatelessWidget {
               );
             }),
             const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Tổng cộng',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    CurrencyFormatter.formatVnd(order.total),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _OrderPaymentSummary(order: order),
             if (canCancel) ...[
               const SizedBox(height: 16),
               SizedBox(
@@ -181,6 +172,75 @@ class OrderDetailScreen extends StatelessWidget {
         Get.back();
         Get.back();
       },
+    );
+  }
+}
+
+class _OrderPaymentSummary extends StatelessWidget {
+  const _OrderPaymentSummary({required this.order});
+
+  final OrderModel order;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          _row('Tạm tính', order.subtotal),
+          const SizedBox(height: 8),
+          _row('Phí vận chuyển', order.shippingFee),
+          const SizedBox(height: 8),
+          _row('Giảm giá', -order.discountAmount, color: Colors.red),
+          if (order.couponCode != null && order.couponCode!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _textRow('Mã khuyến mãi', order.couponCode!),
+          ],
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(),
+          ),
+          _row('Tổng cộng', order.total, bold: true, color: Colors.blue),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String label, double value, {Color? color, bool bold = false}) {
+    final text = value < 0
+        ? '- ${CurrencyFormatter.formatVnd(value.abs())}'
+        : CurrencyFormatter.formatVnd(value);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontWeight: bold ? FontWeight.bold : null),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: bold ? 18 : 14,
+            fontWeight: bold ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _textRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }
@@ -271,11 +331,24 @@ class _OrderHeader extends StatelessWidget {
           Text('Ngày đặt: ${timeago.format(order.createdAt, locale: 'vi')}'),
           Text('Địa chỉ: ${order.address}'),
           Text(
-            'Phương thức thanh toán: ${order.paymentMethod == 'COD' ? 'Tiền mặt' : 'Chuyển khoản'}',
+            'Phương thức thanh toán: ${_paymentMethodLabel(order.paymentMethod)}',
           ),
         ],
       ),
     );
+  }
+
+  String _paymentMethodLabel(String value) {
+    switch (value) {
+      case 'COD':
+      case 'cash':
+        return 'Tiền mặt khi nhận hàng';
+      case 'BANK_TRANSFER':
+      case 'bank':
+        return 'Chuyển khoản ngân hàng';
+      default:
+        return value;
+    }
   }
 }
 

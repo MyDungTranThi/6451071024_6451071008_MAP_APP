@@ -5,7 +5,10 @@ import '../../controller/address_controller.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../controller/cart_controller.dart';
 import '../../controller/checkout_controller.dart';
+import '../../controller/coupon_controller.dart';
+import '../../controller/shipping_fee_controller.dart';
 import '../../data/models/address_model.dart';
+import '../../data/models/book_model.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/currency_formatter.dart';
 
@@ -20,15 +23,17 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
   final CheckoutController checkout = Get.find<CheckoutController>();
   final CartController cart = Get.find<CartController>();
   final BookCatalogController catalog = Get.find<BookCatalogController>();
+  final CouponController coupon = Get.find<CouponController>();
+  final ShippingFeeController shippingFeeController =
+      Get.find<ShippingFeeController>();
   final AddressController addressController = AddressController();
   final TextEditingController couponController = TextEditingController();
-  final RxString paymentMethod = 'cash'.obs;
-  final RxDouble discountAmount = 0.0.obs;
-  final double shippingFee = 0.0;
+  final RxString paymentMethod = 'COD'.obs;
 
   @override
   void dispose() {
     couponController.dispose();
+    coupon.clear();
     super.dispose();
   }
 
@@ -103,8 +108,9 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
         children: lines.asMap().entries.map((entry) {
           final index = entry.key;
           final line = entry.value;
-          final book = catalog.findById(line.key);
+          final book = catalog.findById(line.bookId);
           if (book == null) return const SizedBox.shrink();
+          final price = cart.sellingPrice(book);
 
           return Column(
             children: [
@@ -125,7 +131,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
+                      errorBuilder: (_, _, _) =>
                           const Icon(Icons.menu_book, size: 30),
                     ),
                   ),
@@ -147,14 +153,27 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    '${book.title} (x${line.value})',
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${book.title} (x${line.quantity})',
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Phân loại: ${bookFormatLabel(line.format)}',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 trailing: Column(
@@ -162,7 +181,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      CurrencyFormatter.formatVnd(book.price * line.value),
+                      CurrencyFormatter.formatVnd(price * line.quantity),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
@@ -212,26 +231,67 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
               ),
             ),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade700,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              elevation: 0,
-            ),
-            onPressed: () {
-              if (couponController.text.trim().isEmpty) {
-                Get.snackbar('Thông báo', 'Vui lòng nhập mã');
-                return;
-              }
+          Obx(() {
+            final isApplying = coupon.isApplying.value;
+            final hasAppliedCoupon = coupon.appliedCode.isNotEmpty;
 
-              discountAmount.value = 0;
-              Get.snackbar('Thông báo', 'Mã khuyến mãi chưa được hỗ trợ');
-            },
-            child: const Text('Áp dụng'),
-          ),
+            return ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: hasAppliedCoupon
+                    ? Colors.red.shade600
+                    : Colors.blue.shade700,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
+              ),
+              onPressed: isApplying
+                  ? null
+                  : () async {
+                      if (hasAppliedCoupon) {
+                        couponController.clear();
+                        coupon.clear();
+                        Get.snackbar('Thông báo', 'Đã bỏ mã khuyến mãi');
+                        return;
+                      }
+
+                      final code = couponController.text.trim().toUpperCase();
+                      if (code.isEmpty) {
+                        Get.snackbar('Thông báo', 'Vui lòng nhập mã');
+                        return;
+                      }
+
+                      final subtotal = cart.totalPrice(catalog);
+                      final shippingFee = shippingFeeController.calculate(
+                        subtotal,
+                      );
+                      final success = await coupon.applyCoupon(
+                        code: code,
+                        subtotal: subtotal,
+                        shippingFee: shippingFee,
+                      );
+
+                      if (success) {
+                        couponController.text = coupon.appliedCode;
+                        Get.snackbar(
+                          'Thành công',
+                          'Đã áp dụng mã ${coupon.appliedCode}',
+                        );
+                        return;
+                      }
+
+                      Get.snackbar('Thông báo', coupon.errorMessage.value);
+                    },
+              child: Text(
+                isApplying
+                    ? 'Đang kiểm tra'
+                    : hasAppliedCoupon
+                    ? 'Bỏ mã'
+                    : 'Áp dụng',
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -248,17 +308,19 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
         children: [
           _buildPaymentOption(
             title: 'Tiền mặt khi nhận hàng (COD)',
-            value: 'cash',
+            value: 'COD',
             icon: Icons.payments_outlined,
           ),
           Divider(height: 1, color: Colors.grey.shade100),
           _buildPaymentOption(
             title: 'Chuyển khoản ngân hàng',
-            value: 'bank',
+            value: 'BANK_TRANSFER',
             icon: Icons.account_balance_outlined,
           ),
           Obx(() {
-            if (paymentMethod.value != 'bank') return const SizedBox.shrink();
+            if (paymentMethod.value != 'BANK_TRANSFER') {
+              return const SizedBox.shrink();
+            }
 
             return Container(
               width: double.infinity,
@@ -462,7 +524,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: addresses.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final address = addresses[index];
                     final isSelected =
@@ -586,7 +648,12 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
 
   Widget _buildBottomCheckout() {
     final subtotal = cart.totalPrice(catalog);
-    final total = (subtotal + shippingFee - discountAmount.value)
+    final shippingFee = shippingFeeController.calculate(subtotal);
+    final discountAmount = coupon.previewDiscount(
+      subtotal: subtotal,
+      shippingFee: shippingFee,
+    );
+    final total = (subtotal + shippingFee - discountAmount)
         .clamp(0, double.infinity)
         .toDouble();
 
@@ -614,7 +681,11 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
             const SizedBox(height: 8),
             _row('Phí vận chuyển', shippingFee),
             const SizedBox(height: 8),
-            _row('Giảm giá', -discountAmount.value, color: Colors.red),
+            _row('Giảm giá', -discountAmount, color: Colors.red),
+            if (coupon.appliedCode.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _textRow('Mã khuyến mãi', coupon.appliedCode),
+            ],
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Divider(),
@@ -655,7 +726,14 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
 
                         final code = await checkout.placeOrder(
                           cartController: cart,
+                          subtotal: subtotal,
+                          shippingFee: shippingFee,
+                          discountAmount: discountAmount,
                           total: total,
+                          paymentMethod: paymentMethod.value,
+                          couponCode: coupon.appliedCode.isEmpty
+                              ? null
+                              : coupon.appliedCode,
                         );
 
                         if (code != null) {
@@ -742,6 +820,19 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
         ),
       );
     });
+  }
+
+  Widget _textRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+      ],
+    );
   }
 
   Widget _row(

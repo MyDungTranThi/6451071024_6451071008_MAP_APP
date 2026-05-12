@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:map_app_6451071024_6451071008/screens/mystore/all_brand_screen.dart';
 import 'package:map_app_6451071024_6451071008/screens/onboarding/onboarding_screen.dart';
 import 'package:map_app_6451071024_6451071008/screens/splash/splash_screen.dart';
 
@@ -12,15 +11,20 @@ import '../screens/auth/register_screen.dart';
 import '../screens/auth/register_success_screen.dart';
 import '../screens/auth/reset_email_sent_screen.dart';
 import '../screens/auth/verify_email_screen.dart';
+import '../data/models/bank_account_model.dart';
+import '../data/models/address_model.dart';
+import '../screens/bank_account/add_edit_bank_account_screen.dart';
 import '../screens/bank_account/my_bank_account_screen.dart';
 import '../screens/cart/cart_overview_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/home/main_navigation_screen.dart';
-import '../screens/mystore/mystore_screen.dart';
+import '../screens/store/all_brand_screen.dart';
+import '../screens/store/mystore_screen.dart';
 import '../screens/order/order_confirmation_screen.dart';
 import '../screens/order/order_overview_screen.dart';
 import '../screens/order/order_success_screen.dart';
 import '../screens/order/my_order_screen.dart';
+import '../screens/product/product_by_subcategory_screen.dart';
 import '../screens/product/product_detail_screen.dart';
 import '../screens/product/popular_product_screen.dart';
 import '../screens/profile/profile_screen.dart';
@@ -32,6 +36,7 @@ import '../screens/profile/change_email_screen.dart';
 import '../screens/profile/change_phonenumber_screen.dart';
 import '../screens/profile/change_gender_screen.dart';
 import '../screens/profile/change_dateofbirth_screen.dart';
+import '../screens/shipping_address/add_edit_address_screen.dart';
 import '../screens/shipping_address/shipping_address_screen.dart';
 import '../screens/shipping_address/my_shipping_address_screen.dart';
 import '../screens/wishlist/wishlist_screen.dart';
@@ -78,7 +83,7 @@ abstract class AppPages {
       binding: ShoppingBinding(),
     ),
     GetPage(name: AppRoutes.home, page: () => HomeScreen()),
-    GetPage(name: AppRoutes.myStore, page: () => MystoreScreen()),
+    GetPage(name: AppRoutes.myStore, page: () => const MyStoreScreen()),
     GetPage(
       name: AppRoutes.productDetail,
       page: () => const ProductDetailScreen(),
@@ -106,6 +111,16 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.popularProduct,
       page: () => const PopularProductScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.productsByCategory,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        return ProductBySubCategoryScreen(
+          categoryId: args?['categoryId'] as String? ?? '',
+          categoryName: args?['categoryName'] as String? ?? 'Danh mục',
+        );
+      },
     ),
     GetPage(name: AppRoutes.allBrands, page: () => const AllBrandScreen()),
     GetPage(name: AppRoutes.profile, page: () => const ProfileScreen()),
@@ -144,8 +159,22 @@ abstract class AppPages {
       page: () => MyBankAccountScreen(),
     ),
     GetPage(
+      name: AppRoutes.editBankAccount,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        return EditBankAccountScreen(bank: args?['bank'] as BankAccountModel?);
+      },
+    ),
+    GetPage(
       name: AppRoutes.myShippingAddressview,
       page: () => MyShippingAddressScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.editShippingAddress,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        return EditAddressScreen(address: args?['address'] as AddressModel?);
+      },
     ),
 
     // ===== Extra Screens =====

@@ -64,11 +64,18 @@ class BookCatalogController extends GetxController {
           selectedGenre.value == 'All' || selectedGenre.value == book.genre;
 
       final keyword = searchQuery.value.trim().toLowerCase();
+      final searchableText = [
+        book.title,
+        book.author,
+        book.publisher,
+        book.genre,
+        book.brandName ?? '',
+        book.brandId ?? '',
+        ...book.categoryIds,
+        ...book.tags,
+      ].join(' ').toLowerCase();
       final matchesKeyword =
-          keyword.isEmpty ||
-          book.title.toLowerCase().contains(keyword) ||
-          book.author.toLowerCase().contains(keyword) ||
-          book.publisher.toLowerCase().contains(keyword);
+          keyword.isEmpty || searchableText.contains(keyword);
 
       return matchesGenre && matchesKeyword;
     }).toList();

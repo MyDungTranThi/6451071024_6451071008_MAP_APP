@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import '../../controller/address_controller.dart';
 import '../../data/models/address_model.dart';
-import 'add_edit_address_screen.dart';
+import '../../routes/app_routes.dart';
 
 class MyShippingAddressScreen extends StatelessWidget {
   final AddressController _controller = AddressController();
@@ -13,13 +15,19 @@ class MyShippingAddressScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Địa chỉ giao hàng', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true, elevation: 0,
-        backgroundColor: Colors.white, foregroundColor: Colors.black,
+        title: const Text(
+          'Địa chỉ giao hàng',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditAddressScreen())),
-        label: const Text('Thêm địa chỉ'), icon: const Icon(Icons.add),
+        onPressed: () => Get.toNamed(AppRoutes.editShippingAddress),
+        label: const Text('Thêm địa chỉ'),
+        icon: const Icon(Icons.add),
         backgroundColor: Colors.blueAccent,
       ),
       body: StreamBuilder<List<AddressModel>>(
@@ -29,20 +37,30 @@ class MyShippingAddressScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.location_off_outlined, size: 80, color: Colors.grey[300]),
-                const SizedBox(height: 16),
-                Text('Chưa có địa chỉ', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
-              ],
-            ));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.location_off_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Chưa có địa chỉ',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            );
           }
           final addresses = snapshot.data!;
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: addresses.length,
-            itemBuilder: (context, index) => _buildCard(context, addresses[index]),
+            itemBuilder: (context, index) =>
+                _buildCard(context, addresses[index]),
           );
         },
       ),
@@ -53,63 +71,135 @@ class MyShippingAddressScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(16),
-        border: address.isDefault ? Border.all(color: Colors.blueAccent, width: 2) : null,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: address.isDefault
+            ? Border.all(color: Colors.blueAccent, width: 2)
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              const Icon(Icons.location_on, color: Colors.blueAccent),
-              const SizedBox(width: 8),
-              const Text("Địa chỉ giao hàng", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const Spacer(),
-              if (address.isDefault)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.blueAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                  child: const Text('Mặc định', style: TextStyle(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: Colors.blueAccent),
+                const SizedBox(width: 8),
+                const Text(
+                  "Địa chỉ giao hàng",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-            ]),
+                const Spacer(),
+                if (address.isDefault)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Mặc định',
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const Divider(),
             Row(
               children: [
                 Expanded(
                   child: Text(
                     address.receiverName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
                 Text(
                   address.phoneNumber,
-                  style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(address.fullAddress, style: TextStyle(color: Colors.grey[800], height: 1.5, fontSize: 14)),
+            Text(
+              address.fullAddress,
+              style: TextStyle(
+                color: Colors.grey[800],
+                height: 1.5,
+                fontSize: 14,
+              ),
+            ),
             const SizedBox(height: 12),
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              TextButton.icon(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EditAddressScreen(address: address))),
-                icon: const Icon(Icons.edit_outlined, size: 18), label: const Text("Sửa"),
-              ),
-              PopupMenuButton(
-                icon: const Icon(Icons.more_vert, color: Colors.grey),
-                itemBuilder: (context) => [
-                  if (!address.isDefault)
-                    const PopupMenuItem(value: 'default', child: Row(children: [Icon(Icons.check_circle_outline, size: 20), SizedBox(width: 8), Text('Đặt mặc định')])),
-                  const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, color: Colors.red, size: 20), SizedBox(width: 8), Text('Xóa', style: TextStyle(color: Colors.red))])),
-                ],
-                onSelected: (value) {
-                  if (value == 'default') _controller.setDefaultAddress(address.id);
-                  else if (value == 'delete') _showDeleteConfirm(context, address.id);
-                },
-              ),
-            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () => Get.toNamed(
+                    AppRoutes.editShippingAddress,
+                    arguments: {'address': address},
+                  ),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text("Sửa"),
+                ),
+                PopupMenuButton(
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  itemBuilder: (context) => [
+                    if (!address.isDefault)
+                      const PopupMenuItem(
+                        value: 'default',
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle_outline, size: 20),
+                            SizedBox(width: 8),
+                            Text('Đặt mặc định'),
+                          ],
+                        ),
+                      ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
+                          Text('Xóa', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 'default') {
+                      _controller.setDefaultAddress(address.id);
+                    } else if (value == 'delete') {
+                      _showDeleteConfirm(context, address.id);
+                    }
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -123,9 +213,15 @@ class MyShippingAddressScreen extends StatelessWidget {
         title: const Text('Xóa địa chỉ?'),
         content: const Text('Bạn có chắc muốn xóa địa chỉ này?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
           TextButton(
-            onPressed: () { _controller.deleteAddress(addressId); Navigator.pop(context); },
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () {
+              _controller.deleteAddress(addressId);
+              Navigator.pop(context);
+            },
             child: const Text('Xóa', style: TextStyle(color: Colors.red)),
           ),
         ],

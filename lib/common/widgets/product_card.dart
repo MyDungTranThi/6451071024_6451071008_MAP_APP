@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/cart_controller.dart';
+
 import '../../controller/auth_controller.dart';
 import '../../controller/wishlist_controller.dart';
 import '../../data/models/book_model.dart';
-import '../../screens/product/product_detail_screen.dart';
+import '../../routes/app_routes.dart';
 import '../../utils/currency_formatter.dart';
 
 class ProductCard extends StatelessWidget {
@@ -20,7 +20,7 @@ class ProductCard extends StatelessWidget {
       textCancel: 'Hủy',
       onConfirm: () {
         Get.back();
-        Get.toNamed('/login'); // Assuming login route
+        Get.toNamed(AppRoutes.login);
       },
     );
   }
@@ -43,7 +43,7 @@ class ProductCard extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
-        Get.toNamed('/product-detail', arguments: {'bookId': product.id});
+        Get.toNamed(AppRoutes.productDetail, arguments: {'bookId': product.id});
       },
       child: Container(
         decoration: BoxDecoration(
@@ -72,7 +72,7 @@ class ProductCard extends StatelessWidget {
                       product.coverImage,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: Colors.grey[100],
                         child: const Icon(
                           Icons.image_not_supported,
@@ -151,7 +151,7 @@ class ProductCard extends StatelessWidget {
                       ),
                       onPressed: () {
                         final authController = Get.find<AuthController>();
-                        if (authController.currentUser == null) {
+                        if (authController.currentUser.value == null) {
                           _showLoginDialog();
                           return;
                         }

@@ -6,8 +6,6 @@ import '../../common/widgets/profile_menu_item.dart';
 import '../../controller/auth_controller.dart';
 import '../../data/models/user_model.dart';
 import '../../routes/app_routes.dart';
-import '../bank_account/my_bank_account_screen.dart';
-import '../shipping_address/my_shipping_address_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -66,7 +64,11 @@ class ProfileScreen extends StatelessWidget {
   }
 
   /// ===== Header xanh =====
-  Widget _buildHeader(BuildContext context, AuthController authController, UserModel user) {
+  Widget _buildHeader(
+    BuildContext context,
+    AuthController authController,
+    UserModel user,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
@@ -90,10 +92,17 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Text(
                   user.fullName.isEmpty ? 'Book Store User' : user.fullName,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 4),
-                Text(user.email, style: const TextStyle(fontSize: 14, color: Colors.white70)),
+                Text(
+                  user.email,
+                  style: const TextStyle(fontSize: 14, color: Colors.white70),
+                ),
               ],
             ),
           ),
@@ -117,7 +126,7 @@ class ProfileScreen extends StatelessWidget {
           icon: Icons.location_on,
           title: 'Địa chỉ của tôi',
           subtitle: 'Quản lý địa chỉ giao hàng',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MyShippingAddressScreen())),
+          onTap: () => Get.toNamed(AppRoutes.myShippingAddressview),
         ),
         ProfileMenuItem(
           icon: Icons.favorite,
@@ -141,7 +150,7 @@ class ProfileScreen extends StatelessWidget {
           icon: Icons.account_balance,
           title: 'Tài khoản ngân hàng',
           subtitle: 'Quản lý phương thức thanh toán',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MyBankAccountScreen())),
+          onTap: () => Get.toNamed(AppRoutes.myBankAccountview),
         ),
         ProfileMenuItem(
           icon: Icons.discount,
@@ -166,7 +175,10 @@ class ProfileScreen extends StatelessWidget {
   }
 
   /// ===== Logout =====
-  Widget _buildLogoutButton(BuildContext context, AuthController authController) {
+  Widget _buildLogoutButton(
+    BuildContext context,
+    AuthController authController,
+  ) {
     return GestureDetector(
       onTap: () async {
         bool? confirm = await showDialog<bool>(
@@ -175,10 +187,16 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Đăng xuất'),
             content: const Text('Bạn có chắc muốn đăng xuất không?'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Hủy'),
+              ),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+                child: const Text(
+                  'Đăng xuất',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
@@ -195,7 +213,14 @@ class ProfileScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Center(
-          child: Text('Đăng xuất', style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Đăng xuất',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
@@ -211,9 +236,19 @@ class ProfileScreen extends StatelessWidget {
           color: AppColors.primaryBlue,
           child: Column(
             children: [
-              const CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
+              const CircleAvatar(
+                radius: 40,
+                child: Icon(Icons.person, size: 40),
+              ),
               const SizedBox(height: 16),
-              const Text('Guest User', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+              const Text(
+                'Guest User',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => Get.toNamed(AppRoutes.login),
@@ -224,7 +259,10 @@ class ProfileScreen extends StatelessWidget {
         ),
         Expanded(
           child: Center(
-            child: Text('Vui lòng đăng nhập để sử dụng đầy đủ tính năng', style: TextStyle(color: Colors.grey[600])),
+            child: Text(
+              'Vui lòng đăng nhập để sử dụng đầy đủ tính năng',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           ),
         ),
       ],

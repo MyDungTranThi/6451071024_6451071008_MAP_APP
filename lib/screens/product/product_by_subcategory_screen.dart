@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/book_catalog_controller.dart';
+
+import '../../controller/mystore_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/currency_formatter.dart';
-// TODO: Sẽ bổ sung khi cần
-// import '../../common/widgets/product_card.dart';
 
 class ProductBySubCategoryScreen extends StatelessWidget {
   final String categoryId;
@@ -18,10 +17,10 @@ class ProductBySubCategoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogController = Get.find<BookCatalogController>();
-    // TODO: Khi có CategoryController riêng, gọi fetchProductsByCategory ở đây
-    // Tạm thời filter theo genre
-    catalogController.selectGenre(categoryName);
+    final storeController = Get.find<MyStoreController>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      storeController.getCategoryProducts(categoryId);
+    });
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -44,7 +43,7 @@ class ProductBySubCategoryScreen extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        if (catalogController.isLoading.value) {
+        if (storeController.isCategoryProductsLoading.value) {
           return const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
@@ -52,7 +51,7 @@ class ProductBySubCategoryScreen extends StatelessWidget {
           );
         }
 
-        final books = catalogController.filteredBooks;
+        final books = storeController.categoryProducts;
 
         if (books.isEmpty) {
           return Center(
@@ -117,7 +116,7 @@ class ProductBySubCategoryScreen extends StatelessWidget {
                           book.coverImage,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             color: Colors.grey.shade200,
                             child: const Icon(Icons.menu_book, size: 40),
                           ),
