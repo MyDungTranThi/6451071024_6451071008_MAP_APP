@@ -3,16 +3,22 @@ import 'package:get/get.dart';
 import '../controller/book_catalog_controller.dart';
 import '../controller/cart_controller.dart';
 import '../controller/checkout_controller.dart';
+import '../controller/coupon_controller.dart';
 import '../controller/main_navigation_controller.dart';
 import '../controller/product_detail_controller.dart';
+import '../controller/shipping_fee_controller.dart';
 import '../controller/wishlist_controller.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/cart_repository.dart';
+import '../data/repositories/coupon_repository.dart';
 import '../data/repositories/order_repository.dart';
+import '../data/repositories/shipping_fee_repository.dart';
 import '../data/repositories/wishlist_repository.dart';
 import '../data/services/book_firestore_service.dart';
 import '../data/services/cart_firestore_service.dart';
+import '../data/services/coupon_service.dart';
 import '../data/services/order_firestore_service.dart';
+import '../data/services/shipping_fee_service.dart';
 import '../data/services/wishlist_firestore_service.dart';
 
 import '../data/services/brand_firestore_service.dart';
@@ -66,6 +72,14 @@ class ShoppingBinding extends Bindings {
       WishlistRepository(wishlistFirestoreService),
       permanent: true,
     );
+    final couponRepository = Get.put(
+      CouponRepository(Get.put(CouponService(), permanent: true)),
+      permanent: true,
+    );
+    final shippingFeeRepository = Get.put(
+      ShippingFeeRepository(Get.put(ShippingFeeService(), permanent: true)),
+      permanent: true,
+    );
 
     // New Services & Repos
     Get.put(BrandFirestoreService(), permanent: true);
@@ -87,6 +101,8 @@ class ShoppingBinding extends Bindings {
     Get.put(CartController(cartRepository), permanent: true);
     Get.put(ProductDetailController(), permanent: true);
     Get.put(CheckoutController(orderRepository), permanent: true);
+    Get.put(CouponController(couponRepository), permanent: true);
+    Get.put(ShippingFeeController(shippingFeeRepository), permanent: true);
     Get.put(WishlistController(wishlistRepository), permanent: true);
 
     Get.put(BrandController(brandRepo, bookRepository), permanent: true);
@@ -95,7 +111,9 @@ class ShoppingBinding extends Bindings {
       MyStoreController(brandRepo, catRepo, bookRepository),
       permanent: true,
     );
-    Get.put(SettingsController(), permanent: true);
+    if (!Get.isRegistered<SettingsController>()) {
+      Get.put(SettingsController(), permanent: true);
+    }
     Get.put(OrderController(), permanent: true);
   }
 }

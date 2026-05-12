@@ -91,20 +91,7 @@ class ProductDetailScreen extends StatelessWidget {
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
                     children: [
-                      // TODO: Use PageView if book.images is available, fallback to coverImage
-                      Positioned.fill(
-                        child: Image.network(
-                          book.coverImage,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: Colors.grey.shade200,
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              size: 80,
-                            ),
-                          ),
-                        ),
-                      ),
+                      Positioned.fill(child: _ProductImageCarousel(book: book)),
                       if (hasDiscount)
                         Positioned(
                           bottom: 16,
@@ -527,6 +514,81 @@ class ProductDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ProductImageCarousel extends StatefulWidget {
+  const _ProductImageCarousel({required this.book});
+
+  final BookModel book;
+
+  @override
+  State<_ProductImageCarousel> createState() => _ProductImageCarouselState();
+}
+
+class _ProductImageCarouselState extends State<_ProductImageCarousel> {
+  final PageController _controller = PageController();
+  int _index = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final images = <String>[
+      widget.book.coverImage,
+      ...widget.book.images,
+    ].where((image) => image.trim().isNotEmpty).toSet().toList();
+
+    if (images.isEmpty) {
+      return Container(
+        color: Colors.grey.shade200,
+        child: const Icon(Icons.image_not_supported, size: 80),
+      );
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        PageView.builder(
+          controller: _controller,
+          itemCount: images.length,
+          onPageChanged: (value) => setState(() => _index = value),
+          itemBuilder: (context, index) {
+            return Image.network(
+              images[index],
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                color: Colors.grey.shade200,
+                child: const Icon(Icons.image_not_supported, size: 80),
+              ),
+            );
+          },
+        ),
+        if (images.length > 1)
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.55),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_index + 1}/${images.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

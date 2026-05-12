@@ -1,3 +1,5 @@
+import '../models/book_model.dart';
+import '../models/cart_item_model.dart';
 import '../services/cart_firestore_service.dart';
 
 class CartRepository {
@@ -5,16 +7,24 @@ class CartRepository {
 
   final CartFirestoreService _cartFirestoreService;
 
-  Stream<Map<String, int>> watchCartItems() {
+  Stream<List<CartItemModel>> watchCartItems() {
     return _cartFirestoreService.watchCartItems();
   }
 
-  Future<void> setQuantity(String bookId, int quantity) {
-    return _cartFirestoreService.setQuantity(bookId, quantity);
+  Future<void> setQuantity({
+    required String bookId,
+    required BookFormat format,
+    required int quantity,
+  }) {
+    return _cartFirestoreService.setQuantity(
+      bookId: bookId,
+      format: format,
+      quantity: quantity,
+    );
   }
 
-  Future<void> remove(String bookId) {
-    return _cartFirestoreService.remove(bookId);
+  Future<void> remove(String itemId) {
+    return _cartFirestoreService.remove(itemId);
   }
 
   Future<void> clear() {

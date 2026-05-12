@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../data/models/book_model.dart';
 import '../data/models/order_model.dart';
 import '../data/repositories/order_repository.dart';
 import 'auth_controller.dart';
@@ -40,7 +41,13 @@ class CheckoutController extends GetxController {
 
   Future<String?> placeOrder({
     required CartController cartController,
+    required double subtotal,
+    required double shippingFee,
+    required double discountAmount,
     required double total,
+    required String paymentMethod,
+    String? couponCode,
+    String? shippingAddressId,
   }) async {
     lastErrorMessage.value = '';
 
@@ -65,24 +72,24 @@ class CheckoutController extends GetxController {
     final catalogController = Get.find<BookCatalogController>();
 
     final orderItems = <OrderItemModel>[];
-    for (final entry in cartController.items.entries) {
-      final book = catalogController.findById(entry.key);
+    for (final item in cartController.items) {
+      final book = catalogController.findById(item.bookId);
       if (book == null) {
         continue;
       }
 
-      final salePrice = book.salePrice;
-      final unitPrice =
-          salePrice != null && salePrice > 0 && salePrice < book.price
-          ? salePrice
-          : book.price;
+      final unitPrice = cartController.sellingPrice(book);
 
       orderItems.add(
         OrderItemModel(
           bookId: book.id,
           title: book.title,
           unitPrice: unitPrice,
-          quantity: entry.value,
+          quantity: item.quantity,
+          format: bookFormatToString(item.format),
+          formatLabel: bookFormatLabel(item.format),
+          coverImage: book.coverImage,
+          author: book.author,
         ),
       );
     }
@@ -110,7 +117,13 @@ class CheckoutController extends GetxController {
         totalItems: cartController.totalItems,
         items: orderItems,
         createdAt: DateTime.now(),
+        subtotal: subtotal,
+        shippingFee: shippingFee,
+        discountAmount: discountAmount,
+        couponCode: couponCode,
+        shippingAddressId: shippingAddressId,
         status: 'created',
+        paymentMethod: paymentMethod,
       );
 
       await _orderRepository.createOrder(order);

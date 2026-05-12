@@ -3,6 +3,7 @@
     "PATH": "${env:PATH};C:\\Users\\MSII\\AppData\\Local\\Pub\\Cache\\bin"
   },
   "chat.tools.terminal.autoApprove": {
-    "Get-Command": true
+    "Get-Command": true,
+    "flutter": true
   }
 }

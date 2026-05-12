@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/cart_controller.dart';
 import '../../controller/book_catalog_controller.dart';
+import '../../data/models/book_model.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/currency_formatter.dart';
-// TODO: Các import sau sẽ bổ sung khi tạo controller/model tương ứng
-// import '../../controller/login_controller.dart';
-// import '../../data/models/cart_item_model.dart';
 
 class CartOverviewScreen extends StatelessWidget {
   const CartOverviewScreen({super.key});
@@ -79,19 +77,21 @@ class CartOverviewScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 physics: const BouncingScrollPhysics(),
                 itemBuilder: (context, index) {
-                  final entry = lines[index];
-                  final book = catalogController.findById(entry.key);
+                  final item = lines[index];
+                  final book = catalogController.findById(item.bookId);
                   if (book == null) return const SizedBox.shrink();
+                  final price = cartController.sellingPrice(book);
 
                   return _CartBookItem(
                     title: book.title,
                     author: book.author,
                     coverImage: book.coverImage,
-                    price: book.price,
-                    quantity: entry.value,
-                    onIncrease: () => cartController.increase(book.id),
-                    onDecrease: () => cartController.decrease(book.id),
-                    onRemove: () => cartController.remove(book.id),
+                    formatLabel: bookFormatLabel(item.format),
+                    price: price,
+                    quantity: item.quantity,
+                    onIncrease: () => cartController.increase(item),
+                    onDecrease: () => cartController.decrease(item),
+                    onRemove: () => cartController.remove(item),
                   );
                 },
               );
@@ -197,6 +197,7 @@ class _CartBookItem extends StatelessWidget {
   final String title;
   final String author;
   final String coverImage;
+  final String formatLabel;
   final double price;
   final int quantity;
   final VoidCallback onIncrease;
@@ -207,6 +208,7 @@ class _CartBookItem extends StatelessWidget {
     required this.title,
     required this.author,
     required this.coverImage,
+    required this.formatLabel,
     required this.price,
     required this.quantity,
     required this.onIncrease,
@@ -247,7 +249,7 @@ class _CartBookItem extends StatelessWidget {
                 height: 90,
                 width: 70,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                     const Icon(Icons.menu_book, size: 40),
               ),
             ),
@@ -290,6 +292,15 @@ class _CartBookItem extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Phân loại: $formatLabel',
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 12),

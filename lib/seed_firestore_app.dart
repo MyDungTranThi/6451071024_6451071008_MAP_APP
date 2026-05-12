@@ -248,6 +248,7 @@ Future<String> seedFirestore({required bool reset}) async {
       'reviews',
       'notifications',
       'orders',
+      'coupons',
     ]);
     for (final userId in _userIds) {
       await _deleteSubcollections(db.collection('users').doc(userId), [
@@ -263,6 +264,7 @@ Future<String> seedFirestore({required bool reset}) async {
   final books = _buildBooks(categories, brands);
   final users = _buildUsers();
   final orders = _buildOrders(users, books);
+  final coupons = _buildCoupons();
   final reviews = _buildReviews(users, books);
   final notifications = _buildNotifications(users, orders);
 
@@ -271,6 +273,7 @@ Future<String> seedFirestore({required bool reset}) async {
   await _commitMaps(db.collection('books'), books);
   await _commitMaps(db.collection('users'), users);
   await _commitMaps(db.collection('orders'), orders);
+  await _commitMaps(db.collection('coupons'), coupons);
   await _commitMaps(db.collection('reviews'), reviews);
   await _commitMaps(db.collection('notifications'), notifications);
 
@@ -295,6 +298,7 @@ Future<String> seedFirestore({required bool reset}) async {
       '- books: ${books.length}\n'
       '- users: ${users.length}\n'
       '- orders: ${orders.length}\n'
+      '- coupons: ${coupons.length}\n'
       '- reviews: ${reviews.length}\n'
       '- notifications: ${notifications.length}\n'
       '- addresses: ${_userIds.length * 3}\n'
@@ -471,13 +475,50 @@ Map<String, Map<String, dynamic>> _buildCartItems(
   List<String> bookIds,
 ) {
   final offset = _userIds.indexOf(userId);
+  const formats = ['paperback', 'hardcover', 'ebook'];
+  const formatLabels = {
+    'paperback': 'Bìa mềm',
+    'hardcover': 'Bìa cứng',
+    'ebook': 'E-book',
+  };
+
   return {
     for (var i = 0; i < 4; i++)
-      bookIds[(offset * 4 + i) % bookIds.length]: {
-        'bookId': bookIds[(offset * 4 + i) % bookIds.length],
-        'quantity': 1 + (i % 3),
-        'updatedAt': FieldValue.serverTimestamp(),
-      },
+      '${bookIds[(offset * 4 + i) % bookIds.length]}_${formats[i % formats.length]}':
+          {
+            'bookId': bookIds[(offset * 4 + i) % bookIds.length],
+            'format': formats[i % formats.length],
+            'formatLabel': formatLabels[formats[i % formats.length]],
+            'quantity': 1 + (i % 3),
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+  };
+}
+
+Map<String, Map<String, dynamic>> _buildCoupons() {
+  return {
+    'BOOK10': {
+      'code': 'BOOK10',
+      'type': 'percent',
+      'value': 10,
+      'maxDiscount': 50000,
+      'minSubtotal': 0,
+      'isActive': true,
+    },
+    'FREESHIP': {
+      'code': 'FREESHIP',
+      'type': 'freeShipping',
+      'value': 0,
+      'minSubtotal': 0,
+      'isActive': true,
+    },
+    'SALE50K': {
+      'code': 'SALE50K',
+      'type': 'fixed',
+      'value': 50000,
+      'minSubtotal': 300000,
+      'isActive': true,
+    },
   };
 }
 
@@ -494,18 +535,41 @@ Map<String, Map<String, dynamic>> _buildOrders(
       final book = bookValues[(i + itemIndex) % bookValues.length];
       final quantity = 1 + ((i + itemIndex) % 3);
       final price = ((book['salePrice'] ?? book['price']) as num).toDouble();
+      final formats = book['availableFormats'] as List<dynamic>;
+      final format = formats[itemIndex % formats.length] as String;
+      final formatLabel = switch (format) {
+        'hardcover' => 'Bìa cứng',
+        'ebook' => 'E-book',
+        _ => 'Bìa mềm',
+      };
+
       return {
         'bookId': book['id'],
         'title': book['title'],
         'unitPrice': price,
         'quantity': quantity,
+        'format': format,
+        'formatLabel': formatLabel,
+        'coverImage': book['coverImage'],
+        'author': book['author'],
         'subtotal': price * quantity,
       };
     });
-    final total = items.fold<double>(
+    final subtotal = items.fold<double>(
       0,
       (subtotal, item) => subtotal + (item['subtotal'] as double),
     );
+    final shippingFee = subtotal >= 700000
+        ? 0.0
+        : subtotal >= 300000
+        ? 15000.0
+        : 30000.0;
+    final discountAmount = i % 4 == 0
+        ? (subtotal * 0.1).clamp(0, 50000).toDouble()
+        : 0.0;
+    final total = (subtotal + shippingFee - discountAmount)
+        .clamp(0, double.infinity)
+        .toDouble();
     final status = _orderStatuses[i % _orderStatuses.length];
     final orderId = 'order_${(i + 1).toString().padLeft(3, '0')}';
 
@@ -519,6 +583,10 @@ Map<String, Map<String, dynamic>> _buildOrders(
       'address':
           '${20 + i}, Đường Sách ${(i % 8) + 1}, Phường ${(i % 5) + 1}, TP. Hồ Chí Minh',
       'note': i.isEven ? 'Giao giờ hành chính' : '',
+      'subtotal': subtotal,
+      'shippingFee': shippingFee,
+      'discountAmount': discountAmount,
+      'couponCode': discountAmount > 0 ? 'BOOK10' : null,
       'total': total,
       'totalItems': items.fold<int>(
         0,

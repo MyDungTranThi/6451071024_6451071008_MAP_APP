@@ -1,26 +1,29 @@
 import '../data/models/address_model.dart';
-import '../data/services/address_service.dart';
+import '../data/repositories/address_repository.dart';
 
 class AddressController {
-  final AddressService _service = AddressService();
+  AddressController({AddressRepository? addressRepository})
+    : _addressRepository = addressRepository ?? AddressRepository();
+
+  final AddressRepository _addressRepository;
 
   Stream<List<AddressModel>> getAddresses() {
-    return _service.getAddresses();
+    return _addressRepository.getAddresses();
   }
 
   Future<void> addAddress(AddressModel address) async {
-    await _service.addAddress(address);
+    await _addressRepository.addAddress(address);
   }
 
   Future<void> updateAddress(AddressModel address) async {
-    await _service.updateAddress(address);
+    await _addressRepository.updateAddress(address);
   }
 
   Future<void> setDefaultAddress(String id) async {
-    await _service.setDefaultAddress(id);
+    await _addressRepository.setDefaultAddress(id);
   }
 
   Future<void> deleteAddress(String id) async {
-    await _service.deleteAddress(id);
+    await _addressRepository.deleteAddress(id);
   }
 }

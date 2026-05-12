@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '../data/models/book_model.dart';
+import '../data/models/cart_item_model.dart';
 import '../data/repositories/cart_repository.dart';
 import 'book_catalog_controller.dart';
 
@@ -10,8 +11,8 @@ class CartController extends GetxController {
   CartController(this._cartRepository);
 
   final CartRepository _cartRepository;
-  final RxMap<String, int> items = <String, int>{}.obs;
-  StreamSubscription<Map<String, int>>? _cartSubscription;
+  final RxList<CartItemModel> items = <CartItemModel>[].obs;
+  StreamSubscription<List<CartItemModel>>? _cartSubscription;
 
   @override
   void onInit() {
@@ -27,49 +28,76 @@ class CartController extends GetxController {
     super.onClose();
   }
 
-  int quantityFor(String bookId) => items[bookId] ?? 0;
+  int quantityFor(String bookId, BookFormat format) {
+    final item = _findItem(bookId, format);
+    return item?.quantity ?? 0;
+  }
 
-  int get totalItems => items.values.fold(0, (sum, qty) => sum + qty);
+  int get totalItems => items.fold(0, (sum, item) => sum + item.quantity);
 
   bool get isEmpty => items.isEmpty;
 
-  List<MapEntry<String, int>> get lines => items.entries.toList();
+  List<CartItemModel> get lines => items.toList();
 
-  Future<void> addBook(BookModel book, {int quantity = 1}) async {
-    final current = items[book.id] ?? 0;
-    await _cartRepository.setQuantity(book.id, current + quantity);
+  Future<void> addBook(
+    BookModel book, {
+    required BookFormat format,
+    int quantity = 1,
+  }) async {
+    final current = quantityFor(book.id, format);
+    await _cartRepository.setQuantity(
+      bookId: book.id,
+      format: format,
+      quantity: current + quantity,
+    );
   }
 
-  Future<void> increase(String bookId) async {
-    await _cartRepository.setQuantity(bookId, (items[bookId] ?? 0) + 1);
+  Future<void> increase(CartItemModel item) async {
+    await _cartRepository.setQuantity(
+      bookId: item.bookId,
+      format: item.format,
+      quantity: item.quantity + 1,
+    );
   }
 
-  Future<void> decrease(String bookId) async {
-    final current = items[bookId] ?? 0;
-    await _cartRepository.setQuantity(bookId, current - 1);
+  Future<void> decrease(CartItemModel item) async {
+    await _cartRepository.setQuantity(
+      bookId: item.bookId,
+      format: item.format,
+      quantity: item.quantity - 1,
+    );
   }
 
-  Future<void> remove(String bookId) async {
-    await _cartRepository.remove(bookId);
+  Future<void> remove(CartItemModel item) async {
+    await _cartRepository.remove(item.id);
   }
 
   double totalPrice(BookCatalogController catalogController) {
     double total = 0;
-    for (final entry in items.entries) {
-      final book = catalogController.findById(entry.key);
+    for (final item in items) {
+      final book = catalogController.findById(item.bookId);
       if (book != null) {
-        total += _sellingPrice(book) * entry.value;
+        total += sellingPrice(book) * item.quantity;
       }
     }
     return total;
   }
 
-  double _sellingPrice(BookModel book) {
+  double sellingPrice(BookModel book) {
     final salePrice = book.salePrice;
     if (salePrice != null && salePrice > 0 && salePrice < book.price) {
       return salePrice;
     }
     return book.price;
+  }
+
+  CartItemModel? _findItem(String bookId, BookFormat format) {
+    for (final item in items) {
+      if (item.bookId == bookId && item.format == format) {
+        return item;
+      }
+    }
+    return null;
   }
 
   Future<void> clear() async {

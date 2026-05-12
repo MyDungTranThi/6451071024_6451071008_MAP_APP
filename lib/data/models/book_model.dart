@@ -70,7 +70,7 @@ class BookModel {
       coverImage: json['coverImage'] as String? ?? '',
       description: (json['description'] ?? '') as String,
       availableFormats: rawFormats
-          .map((format) => _bookFormatFromString(format as String))
+          .map((format) => bookFormatFromString(format as String))
           .toList(),
       salePrice: (json['salePrice'] as num?)?.toDouble(),
       stock: (json['stock'] as num?)?.toInt() ?? 100,
@@ -80,9 +80,19 @@ class BookModel {
       isOutOfStock: json['isOutOfStock'] as bool? ?? false,
       isActive: json['isActive'] as bool? ?? true,
       isDeleted: json['isDeleted'] as bool? ?? false,
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
-      images: (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
-      categoryIds: (json['categoryIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          [],
+      images:
+          (json['images'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      categoryIds:
+          (json['categoryIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       brandId: json['brandId'] as String?,
       brandName: json['brandName'] as String?,
     );
@@ -100,7 +110,7 @@ class BookModel {
       'coverImage': coverImage,
       'description': description,
       'availableFormats': availableFormats
-          .map((format) => _bookFormatToString(format))
+          .map((format) => bookFormatToString(format))
           .toList(),
       'salePrice': salePrice,
       'stock': stock,
@@ -119,18 +129,24 @@ class BookModel {
   }
 }
 
-BookFormat _bookFormatFromString(String value) {
+BookFormat bookFormatFromString(String value) {
   switch (value.toLowerCase()) {
     case 'paperback':
+    case 'bia_mem':
+    case 'bìa mềm':
       return BookFormat.paperback;
     case 'hardcover':
+    case 'bia_cung':
+    case 'bìa cứng':
       return BookFormat.hardcover;
+    case 'ebook':
+    case 'e-book':
     default:
       return BookFormat.ebook;
   }
 }
 
-String _bookFormatToString(BookFormat value) {
+String bookFormatToString(BookFormat value) {
   switch (value) {
     case BookFormat.paperback:
       return 'paperback';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../common/widgets/primary_button.dart';
 import '../../controller/book_catalog_controller.dart';
 import '../../controller/cart_controller.dart';
+import '../../data/models/book_model.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/currency_formatter.dart';
 
@@ -64,10 +64,11 @@ class CartScreen extends StatelessWidget {
                 separatorBuilder: (_, index) => const SizedBox(height: 12),
                 itemBuilder: (_, index) {
                   final line = lines[index];
-                  final book = catalogController.findById(line.key);
+                  final book = catalogController.findById(line.bookId);
                   if (book == null) {
                     return const SizedBox.shrink();
                   }
+                  final price = cartController.sellingPrice(book);
 
                   return Container(
                     decoration: BoxDecoration(
@@ -110,7 +111,15 @@ class CartScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  CurrencyFormatter.formatVnd(book.price),
+                                  'Phân loại: ${bookFormatLabel(line.format)}',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  CurrencyFormatter.formatVnd(price),
                                   style: TextStyle(
                                     color: Colors.blue.shade700,
                                     fontWeight: FontWeight.bold,
@@ -128,20 +137,20 @@ class CartScreen extends StatelessWidget {
                               children: [
                                 IconButton(
                                   onPressed: () =>
-                                      cartController.decrease(book.id),
+                                      cartController.decrease(line),
                                   icon: const Icon(Icons.remove, size: 16),
                                   constraints: const BoxConstraints(),
                                   padding: const EdgeInsets.all(8),
                                 ),
                                 Text(
-                                  '${line.value}',
+                                  '${line.quantity}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 IconButton(
                                   onPressed: () =>
-                                      cartController.increase(book.id),
+                                      cartController.increase(line),
                                   icon: const Icon(Icons.add, size: 16),
                                   constraints: const BoxConstraints(),
                                   padding: const EdgeInsets.all(8),

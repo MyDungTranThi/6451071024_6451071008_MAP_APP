@@ -2,13 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 import '../data/models/user_model.dart';
-import '../data/services/auth_service.dart';
+import '../data/repositories/auth_repository.dart';
 import '../routes/app_routes.dart';
 
 class AuthController extends GetxController {
-  AuthController(this._authService);
+  AuthController(this._authRepository);
 
-  final AuthService _authService;
+  final AuthRepository _authRepository;
 
   final Rxn<UserModel> currentUser = Rxn<UserModel>();
   final RxBool isLoading = false.obs;
@@ -23,19 +23,19 @@ class AuthController extends GetxController {
   }
 
   Future<void> syncFromFirebaseSession() async {
-    final firebaseUser = _authService.currentFirebaseUser;
+    final firebaseUser = _authRepository.currentFirebaseUser;
     if (firebaseUser == null) {
       currentUser.value = null;
       return;
     }
 
     if (!firebaseUser.emailVerified) {
-      await _authService.logout();
+      await _authRepository.logout();
       currentUser.value = null;
       return;
     }
 
-    final profile = await _authService.fetchUserProfile(firebaseUser.uid);
+    final profile = await _authRepository.fetchUserProfile(firebaseUser.uid);
     if (profile != null) {
       currentUser.value = profile.copyWith(
         email: firebaseUser.email ?? profile.email,
@@ -58,7 +58,10 @@ class AuthController extends GetxController {
   Future<void> login(String email, String password) async {
     isLoading.value = true;
     try {
-      final user = await _authService.loginWithEmailPassword(email, password);
+      final user = await _authRepository.loginWithEmailPassword(
+        email,
+        password,
+      );
       currentUser.value = user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -92,7 +95,10 @@ class AuthController extends GetxController {
         phone: phone,
       );
 
-      await _authService.registerUser(userModel: userModel, password: password);
+      await _authRepository.registerUser(
+        userModel: userModel,
+        password: password,
+      );
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
@@ -113,15 +119,15 @@ class AuthController extends GetxController {
   }
 
   Future<void> sendPasswordResetEmail(String email) async {
-    await _authService.sendPasswordResetEmail(email);
+    await _authRepository.sendPasswordResetEmail(email);
   }
 
   Future<void> resendEmailVerification() async {
-    await _authService.resendEmailVerification();
+    await _authRepository.resendEmailVerification();
   }
 
   Future<bool> refreshVerificationStatus() async {
-    final user = await _authService.reloadCurrentUser();
+    final user = await _authRepository.reloadCurrentUser();
     if (user == null || !user.emailVerified) {
       return false;
     }
@@ -131,7 +137,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> logout() async {
-    await _authService.logout();
+    await _authRepository.logout();
     currentUser.value = null;
     Get.offAllNamed(AppRoutes.login);
   }
@@ -153,7 +159,7 @@ class AuthController extends GetxController {
       username: username,
       phone: phone,
     );
-    await _authService.updateProfile(updated);
+    await _authRepository.updateProfile(updated);
     currentUser.value = updated;
   }
 }

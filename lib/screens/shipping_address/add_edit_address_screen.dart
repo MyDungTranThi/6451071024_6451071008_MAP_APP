@@ -78,8 +78,11 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       isDefault: _isDefault, latitude: 0.0, longitude: 0.0,
     );
     try {
-      if (widget.address == null) await _controller.addAddress(address);
-      else await _controller.updateAddress(address);
+      if (widget.address == null) {
+        await _controller.addAddress(address);
+      } else {
+        await _controller.updateAddress(address);
+      }
       if (_isDefault && widget.address != null) await _controller.setDefaultAddress(widget.address!.id);
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -129,7 +132,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
               const Text("THÔNG TIN VỊ TRÍ", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                isExpanded: true, value: _selectedCity,
+                isExpanded: true, initialValue: _selectedCity,
                 hint: const Text("Chọn Tỉnh/Thành phố"),
                 decoration: InputDecoration(prefixIcon: const Icon(Icons.location_city), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                 items: _cities.map((c) => DropdownMenuItem(value: c['name'] as String, child: Text(c['name'], overflow: TextOverflow.ellipsis))).toList(),
@@ -138,7 +141,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                isExpanded: true, value: _selectedWard,
+                isExpanded: true, initialValue: _selectedWard,
                 hint: const Text("Chọn Phường/Xã"),
                 decoration: InputDecoration(prefixIcon: const Icon(Icons.map), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                 items: _wards.map((w) => DropdownMenuItem(value: w['name'] as String, child: Text(w['name'], overflow: TextOverflow.ellipsis))).toList(),
@@ -161,7 +164,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                contentPadding: EdgeInsets.zero, value: _isDefault, activeColor: Colors.blue,
+                contentPadding: EdgeInsets.zero, value: _isDefault, activeThumbColor: Colors.blue,
                 title: const Text('Đặt làm địa chỉ mặc định'),
                 onChanged: (v) => setState(() => _isDefault = v),
               ),

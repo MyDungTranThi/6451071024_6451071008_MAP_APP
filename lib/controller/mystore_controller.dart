@@ -60,10 +60,8 @@ class MyStoreController extends GetxController {
   Future<void> getCategoryProducts(String categoryId) async {
     try {
       isCategoryProductsLoading.value = true;
-      // Fetch books and filter locally for simplicity, or use an index.
-      final allBooks = await _bookRepository.searchBooks('');
-      final filtered = allBooks.where((book) => book.categoryIds.contains(categoryId)).toList();
-      categoryProducts.assignAll(filtered);
+      final data = await _bookRepository.getBooksByCategory(categoryId);
+      categoryProducts.assignAll(data);
     } catch (e) {
       print("Error fetching category products: $e");
     } finally {

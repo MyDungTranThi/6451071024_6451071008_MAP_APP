@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../controller/mystore_controller.dart';
 import '../../common/widgets/brand_card.dart';
 import '../../common/widgets/category_item.dart';
+import '../../routes/app_routes.dart';
 
 class MyStoreScreen extends StatelessWidget {
   const MyStoreScreen({super.key});
@@ -12,10 +13,7 @@ class MyStoreScreen extends StatelessWidget {
     final MyStoreController controller = Get.find<MyStoreController>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Store'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('My Store'), centerTitle: true),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,10 +23,7 @@ class MyStoreScreen extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text(
                 'Danh mục',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             Obx(() {
@@ -52,11 +47,17 @@ class MyStoreScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final cat = controller.categories[index];
                   return CategoryItem(
-                    imageUrl: cat.image.isNotEmpty ? cat.image : 'https://via.placeholder.com/150',
+                    imageUrl: cat.image.isNotEmpty
+                        ? cat.image
+                        : 'https://via.placeholder.com/150',
                     title: cat.name,
-                    onTap: () {
-                      // Navigate to category details
-                    },
+                    onTap: () => Get.toNamed(
+                      AppRoutes.productsByCategory,
+                      arguments: {
+                        'categoryId': cat.id,
+                        'categoryName': cat.name,
+                      },
+                    ),
                   );
                 },
               );
@@ -69,10 +70,7 @@ class MyStoreScreen extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text(
                 'Thương hiệu nổi bật',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             Obx(() {
@@ -97,14 +95,15 @@ class MyStoreScreen extends StatelessWidget {
                   final brand = controller.featuredBrands[index];
                   return BrandCard(
                     brand: brand,
-                    onTap: () {
-                      // Navigate to brand store
-                    },
+                    onTap: () => Get.toNamed(
+                      AppRoutes.brandDetail,
+                      arguments: {'brandId': brand.id},
+                    ),
                   );
                 },
               );
             }),
-            
+
             const SizedBox(height: 30),
           ],
         ),

@@ -225,7 +225,7 @@ class _BookGridCard extends StatelessWidget {
                   book.coverImage,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: Colors.grey.shade200,
                     child: const Icon(Icons.menu_book, size: 40),
                   ),

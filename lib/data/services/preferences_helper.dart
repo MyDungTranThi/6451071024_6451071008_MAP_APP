@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferencesHelper {
   static const String _keyLanguage = 'language_code';
   static const String _keyTheme = 'theme_mode';
+  static const String _keyFontScale = 'font_scale';
 
   static Future<void> saveLanguageCode(String languageCode) async {
     final prefs = await SharedPreferences.getInstance();
@@ -26,5 +27,15 @@ class PreferencesHelper {
     if (modeStr == ThemeMode.light.toString()) return ThemeMode.light;
     if (modeStr == ThemeMode.dark.toString()) return ThemeMode.dark;
     return ThemeMode.system;
+  }
+
+  static Future<void> saveFontScale(double scale) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_keyFontScale, scale);
+  }
+
+  static Future<double> getFontScale() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_keyFontScale) ?? 1.0;
   }
 }

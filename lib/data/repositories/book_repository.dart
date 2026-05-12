@@ -18,6 +18,10 @@ class BookRepository {
     return _bookFirestoreService.getBooksByBrand(brandId);
   }
 
+  Future<List<BookModel>> getBooksByCategory(String categoryId) {
+    return _bookFirestoreService.getBooksByCategory(categoryId);
+  }
+
   Future<List<BookModel>> getPopularBooks() {
     return _bookFirestoreService.getPopularBooks();
   }

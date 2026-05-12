@@ -1,9 +1,14 @@
 import 'package:get/get.dart';
-import '../data/services/update_account_service.dart';
+
+import '../data/repositories/update_account_repository.dart';
 import 'auth_controller.dart';
 
 class UpdateAccountController extends GetxController {
-  final UpdateAccountService _service = UpdateAccountService();
+  UpdateAccountController({UpdateAccountRepository? updateAccountRepository})
+    : _updateAccountRepository =
+          updateAccountRepository ?? UpdateAccountRepository();
+
+  final UpdateAccountRepository _updateAccountRepository;
 
   Future<void> changeName(String fullName) async {
     final authController = Get.find<AuthController>();
@@ -19,7 +24,7 @@ class UpdateAccountController extends GetxController {
     String lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
 
     // Update Firestore
-    await _service.updateName(
+    await _updateAccountRepository.updateName(
       userId: user.id,
       firstName: firstName,
       lastName: lastName,
@@ -33,30 +38,30 @@ class UpdateAccountController extends GetxController {
   }
 
   Future<void> updateUsername(String username) async {
-    await _service.updateUsername(username);
+    await _updateAccountRepository.updateUsername(username);
   }
 
   Future<void> updateEmail(String email) async {
-    await _service.updateEmail(email);
+    await _updateAccountRepository.updateEmail(email);
   }
 
   Future<void> syncEmailAfterVerification() async {
-    await _service.syncEmailAfterVerification();
+    await _updateAccountRepository.syncEmailAfterVerification();
   }
 
   Future<void> updateGender(String gender) async {
-    await _service.updateGender(gender);
+    await _updateAccountRepository.updateGender(gender);
   }
 
   Future<void> updateDateOfBirth(DateTime date) async {
-    await _service.updateDateOfBirth(date);
+    await _updateAccountRepository.updateDateOfBirth(date);
   }
 
   Future<void> updatePhone(String phone) async {
-    await _service.updatePhone(phone);
+    await _updateAccountRepository.updatePhone(phone);
   }
 
   Stream getUserData() {
-    return _service.getUserData();
+    return _updateAccountRepository.getUserData();
   }
 }
